@@ -23,7 +23,7 @@ We use a directory to save Each textual data.
 
 ### Content
 
-For each year's university example, we parse the question and answer as the following format
+For each year's [university exam](https://www.ceec.edu.tw/xmfile?xsmsid=0J052424829869345634), we parse the question and answer as the following format
 ```json
 {
     "question_groups": [
@@ -39,7 +39,6 @@ For each year's university example, we parse the question and answer as the foll
     "questions": [
         {
             "id": 2,
-            "is_grouped": false,
             "type": "single",
             "answer": "C",
             "question": "時下各國普遍流行將國營事業開放民間經營，試問這種決策的主要著眼點為何？",
@@ -51,7 +50,6 @@ For each year's university example, we parse the question and answer as the foll
         }, 
         {
             "id": 72,
-            "is_grouped": false,
             "type": "multi",
             "answer": "AD",
             "question": "邊疆民族進入塞內，占有原為漢族之土地而統冶之，若以不同制度冶理本族與漢族，即稱「二元政冶」，在中國歷史上，採「二元政治」的朝代有那些？",
@@ -64,7 +62,6 @@ For each year's university example, we parse the question and answer as the foll
         },
         {
             "id": 13,
-            "is_grouped": true,
             "type": "single",
             "answer": "B",
             "question": "該立法主張如獲得通過，最可能侵害以下哪一種人民權益？",
