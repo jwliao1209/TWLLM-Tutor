@@ -1,0 +1,2 @@
+# parse from answer
+pdfplumber==0.10.3
