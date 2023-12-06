@@ -16,7 +16,7 @@ We use a directory to save Each textual data.
 {data_name}
 |- metadata.txt # The metadata of this data
 |- content.json # The main content of the data
-|- *.{png|jpg}  # The raw data of each figure in the data
+|- *.png        # The raw data of each figure in the data
 |- *.pth        # The image embedding of each figure in the data
 |- *.md         # The text in markdown for each table in the data
 ```
@@ -33,7 +33,7 @@ For each year's [university exam](https://www.ceec.edu.tw/xmfile?xsmsid=0J052424
         },
         {
             "ids": [64,65,66],
-            "prefix": "\image_reference{9}是1848年至1849年歐洲一系列武裝革命運動的分布情形，這波革命運動雖然都以失敗告終，但對歐洲的影響卻極為深遠。請問："
+            "prefix": "\\image{9}是1848年至1849年歐洲一系列武裝革命運動的分布情形，這波革命運動雖然都以失敗告終，但對歐洲的影響卻極為深遠。請問："
         }
     ]
     "questions": [
@@ -46,7 +46,6 @@ For each year's [university exam](https://www.ceec.edu.tw/xmfile?xsmsid=0J052424
             "B": "增進社會福利",
             "C": "提高經營效率",
             "D": "揚棄共產主義",
-            "answer_details": "",
         }, 
         {
             "id": 72,
@@ -58,7 +57,6 @@ For each year's [university exam](https://www.ceec.edu.tw/xmfile?xsmsid=0J052424
             "C": "金",
             "D": "元",
             "E": "清",
-            "answer_details": "",
         },
         {
             "id": 13,
@@ -69,7 +67,6 @@ For each year's [university exam](https://www.ceec.edu.tw/xmfile?xsmsid=0J052424
             "B": "媒體新聞自由",
             "C": "民眾媒體近用",
             "D": "記者個人姓名",
-            "answer_details": "",
         }
     ]
 }
