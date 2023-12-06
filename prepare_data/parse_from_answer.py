@@ -49,7 +49,7 @@ if __name__ == "__main__":
             text = page.extract_text()
 
             # find the page with "社會" in text
-            if "會" in text:
+            if "社會" in text:
                 break
 
     print("============================================================")
@@ -58,9 +58,9 @@ if __name__ == "__main__":
     
     print("============================================================")
     print("Cleaned Answer:")
-    print(text)
     cleaned_lines = [line for line in text.split('\n') if re.search(r'\d', line)]
     cleaned_text = '\n'.join(cleaned_lines)
+    print(cleaned_text)
 
     print("============================================================")
     print("Exact Answer:")
