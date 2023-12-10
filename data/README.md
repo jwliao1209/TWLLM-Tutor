@@ -73,4 +73,9 @@ For each year's [university exam](https://www.ceec.edu.tw/xmfile?xsmsid=0J052424
 }
 ```
 
-
+### Analysis of data
+```
+Number of Multiple Choices
+|- Total number of questions: 2185
+|- Average number of questions: 68
+```
