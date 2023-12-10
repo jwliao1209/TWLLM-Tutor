@@ -39,7 +39,6 @@ def list_directories(path='.'):
     directories = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d))]
     return directories
 
-# Example usage
 current_dir_directories = list_directories()
 for directory in current_dir_directories:
     print(f"Processing directory: {directory}")
