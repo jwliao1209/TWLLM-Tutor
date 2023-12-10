@@ -16,6 +16,7 @@ We use a directory to save Each textual data.
 {data_name}
 |- metadata.txt # The metadata of this data
 |- content.json # The main content of the data
+|- content_hw3.json # The single choice content saved in HW3 format
 |- *.png        # The raw data of each figure in the data
 |- *.pth        # The image embedding of each figure in the data
 |- *.md         # The text in markdown for each table in the data
@@ -72,4 +73,9 @@ For each year's [university exam](https://www.ceec.edu.tw/xmfile?xsmsid=0J052424
 }
 ```
 
-
+### Analysis of data
+```
+Number of Multiple Choices
+|- Total number of questions: 2185
+|- Average number of questions: 68
+```
