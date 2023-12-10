@@ -1,12 +1,15 @@
 import os
 import json
 
+
 def transform_dict(original):
     return {
         "id": original["id"],
         "instruction": f"問題：{original['question']} \nA. {original['A']} \nB. {original['B']} \nC. {original['C']} \nD. {original['D']} \n答案：",
-        "output": f"{original['answer']} {original[str(original['answer'])]}"
+        "output": f"{original['answer']} {original[str(original['answer'])]}",
+        "detailed explanation": None
     }
+
 
 def process_directory(directory):
     # Paths for the input and output files
@@ -19,8 +22,8 @@ def process_directory(directory):
 
     # Transforming the data
     transformed_dicts = [
-        transform_dict(original) 
-        for original in data["questions"] 
+        transform_dict(original)
+        for original in data["questions"]
         if original.get("type") != "multi" and
         original.get("answer") != "無答案" and
         len(original.get("answer", "")) <= 1
@@ -36,8 +39,10 @@ def list_directories(path='.'):
     Lists all directories in the specified path.
     Default is the current directory.
     """
-    directories = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d))]
+    directories = [d for d in os.listdir(
+        path) if os.path.isdir(os.path.join(path, d))]
     return directories
+
 
 current_dir_directories = list_directories()
 for directory in current_dir_directories:
