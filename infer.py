@@ -13,8 +13,8 @@ from peft import PeftModel
 from dataset import AcademicDataset, collate_func
 from transformers import BitsAndBytesConfig
 
-from data_utils import read_json, write_json
-from train_utils import set_random_seeds, dict_to_device
+from utils.data_utils import read_json, write_json
+from utils.train_utils import set_random_seeds, dict_to_device
 
 
 logging.basicConfig(
