@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 from constants import CHECKPOINT_DIR
 from tracker import MetricTracker
-from perplexity import Perplexity
+from metric.perplexity import Perplexity
 from utils.train_utils import dict_to_device
 
 
