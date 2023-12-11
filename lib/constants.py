@@ -1,3 +1,5 @@
+import os
+
 
 TRAIN_FOLDERS = [
     "83",
@@ -36,3 +38,6 @@ VALID_FOLDERS = [
     "111",
     "112",
 ]
+
+CHECKPOINT_DIR = "checkpoint"
+os.makedirs(CHECKPOINT_DIR, exist_ok=True)

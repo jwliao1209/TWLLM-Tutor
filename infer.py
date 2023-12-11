@@ -1,18 +1,14 @@
 import logging
-import random
-import numpy as np
 from tqdm import tqdm
 from argparse import Namespace, ArgumentParser
-
 
 import torch
 from torch.utils.data import DataLoader
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
+from configs import get_bnb_config
 from dataset import AcademicDataset, collate_func
-from transformers import BitsAndBytesConfig
-
 from utils.data_utils import read_json, write_json
 from utils.train_utils import set_random_seeds, dict_to_device
 
@@ -22,16 +18,6 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S',
     level=logging.DEBUG,
 )
-
-
-def get_bnb_config() -> BitsAndBytesConfig:
-    '''Get the BitsAndBytesConfig.'''
-    return BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_use_double_quant=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.bfloat16,
-    )
 
 
 def parse_arguments() -> Namespace:
