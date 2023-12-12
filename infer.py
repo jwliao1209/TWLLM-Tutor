@@ -23,16 +23,16 @@ logging.basicConfig(
 def parse_arguments() -> Namespace:
     parser = ArgumentParser(description="Taiwan-LLaMa Instruction Tuning")
     parser.add_argument("--method", type=str,
-                        default="few-shot",
+                        default="lora-fine-tune",
                         help="support method: zero-shot, few-shot, and lora-fine-tune")
     parser.add_argument("--base_model_path", type=str,
                         default="model_weight/Taiwan-LLM-7B-v2.0-chat",
                         help="Path to the checkpoint of Taiwan-LLM-7B-v2.0-chat. If not set, this script will use "
                         "the checkpoint from Huggingface (revision = 5073b2bbc1aa5519acdc865e99832857ef47f7c9).")
-    # parser.add_argument("--peft_path",
-    #                     type=str,
-    #                     default="checkpoint/epoch=4_ppl=3.649335366725922",
-    #                     help="Path to the saved PEFT checkpoint.")
+    parser.add_argument("--peft_path",
+                        type=str,
+                        default="checkpoint/epoch=2_ppl=1.0904186197229333",
+                        help="Path to the saved PEFT checkpoint.")
     parser.add_argument("--test_data_path", type=str,
                         default="data/train_data/valid.json",
                         help="Path to test data.")
@@ -64,7 +64,7 @@ if __name__ == "__main__":
         torch_dtype=torch.bfloat16,
         quantization_config=bnb_config
     )
-    # model = PeftModel.from_pretrained(model, args.peft_path)
+    model = PeftModel.from_pretrained(model, args.peft_path)
     model.eval()
 
     correct = 0
