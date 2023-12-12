@@ -109,7 +109,7 @@ def update_json_file(json_file_path, data_to_update):
     # Update the JSON data
     for item in json_data:
         for question_number, explanation in data_to_update:
-            if item["id"] == int(question_number):
+            if item["id"] == (int(question_number)-1):
                 item["detailed explanation"] = explanation
 
     # Save the updated JSON data
@@ -135,7 +135,7 @@ for file in raw_dir_directories:
     extracted_text = extract_text_for_questions(
         file_path, start_marker, explanation_marker, num_questions)
     # print(len(extracted_text))
-    # print(extracted_text)
+    # print(extracted_text[0])
 
     # Determine the corresponding folder name using the year
     year = extract_leading_numbers([file])[0]
