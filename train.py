@@ -55,7 +55,6 @@ def parse_arguments() -> Namespace:
     parser.add_argument("--device_id", type=int,
                         default=0,
                         help="device id")
-
     return parser.parse_args()
 
 
