@@ -52,6 +52,9 @@ def parse_arguments() -> Namespace:
     parser.add_argument("--lora_rank", type=int,
                         default=16,
                         help="rank of lora")
+    parser.add_argument("--device_id", type=int,
+                        default=0,
+                        help="device id")
     return parser.parse_args()
 
 
@@ -89,7 +92,7 @@ if __name__ == "__main__":
     )
     model = prepare_model_for_kbit_training(model)
     model = get_peft_model(model, peft_config)
-    device = torch.device(f"cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device(f"cuda:{args.device_id}" if torch.cuda.is_available() else "cpu")
 
     # Prepared optimizer and learning rate scheduler
     optimizer = get_optimizer(model, lr=args.lr, weight_decay=args.weight_decay)
