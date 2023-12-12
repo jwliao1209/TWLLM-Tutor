@@ -11,7 +11,7 @@ pip install -r configs/requirements.txt
 ```
 conda create --name adl_final python=3.10.0
 source activate adl_final
-pip install -r requirements.txt
+pip install -r configs/requirements.txt
 ```
 
 ## Prepare Training Dataset
