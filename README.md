@@ -2,15 +2,18 @@
 
 
 ## Set the Environment
+- Virtual Environment
 ```
 virtualenv --python=python3.10 adl_final
 source ~/adl_final/bin/activate
-```
-
-```
 pip install -r configs/requirements.txt
 ```
-
+- Conda
+```
+conda create --name adl_final python=3.10.0
+source activate adl_final
+pip install -r requirements.txt
+```
 
 ## Prepare Training Dataset
 ```
