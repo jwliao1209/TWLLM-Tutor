@@ -423,7 +423,7 @@
         "id": 71,
         "instruction": "問題：圖中倫敦最可能為何者？ \nA. 甲 \nB. 乙 \nC. 丙 \nD. 丁 \n答案：",
         "output": "C 丙",
-        "detailed explanation": "(D)因為乙為上海，丁為紐約，戊為東京。"
+        "detailed explanation": "甲為拉哥斯（都市化發展最慢，但成長極快），乙為上海，丙為倫敦，丁為紐約，戊為東京。"
     },
     {
         "id": 72,

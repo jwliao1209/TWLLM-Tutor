@@ -3,7 +3,7 @@
         "id": 1,
         "instruction": "問題：大明代表學校參加棒球比賽，卻因不慎漏接導致球隊以一分飲恨，賽後檢討時，教練批評指責其反應太慢，他因此認為自己很笨、能力不好，不適合打棒球。下列哪個概念最符合大明的處境？ \nA. 米德（George H. Mead）：概化他人（the generalized others） \nB. 顧里（Charles H. Cooley）：鏡中自我（looking-glass self） \nC. 佛洛依德（Sigmund Freud）：超我（super ego） \nD. 艾瑞克森（Erik Erikson）：自我混淆（self-confusion） \n答案：",
         "output": "B 顧里（Charles H. Cooley）：鏡中自我（looking-glass self）",
-        "detailed explanation": "顧里認為自我的形成來自於想像別人如何看待自己。"
+        "detailed explanation": "新城是四個車站中唯一位在東部的車站。"
     },
     {
         "id": 2,
@@ -15,7 +15,7 @@
         "id": 3,
         "instruction": "問題：由於刻板印象而產生性別迷思的狀況常可見，近來性別平等教育融入課程已成為校園的重要課題。下列何者可反映出校園內的性別刻板印象？ \nA. 訓導主任大力呼籲學生們不要霸凌弱小同學 \nB. 性別平等委員會是為保障女性教職員生而成立 \nC. 體育老師徵求班上男女各十位同學參加拔河比賽 \nD. 開學第一天導師請班上力氣大的同學幫忙搬新課本 \n答案：",
         "output": "B 性別平等委員會是為保障女性教職員生而成立",
-        "detailed explanation": "性別刻板印象係指社會上對於男人或女人性格特質作過度簡化、固定的看法，而且不太允許有個人差異的存在稱之。"
+        "detailed explanation": "No paragraph found after the marker"
     },
     {
         "id": 4,
@@ -417,7 +417,7 @@
         "id": 71,
         "instruction": "問題：1919年，日人為興建日月潭水力發電廠，曾鋪設一條鐵路，以搬運工程所需機具與建材。\\image{photo_5}的四個車站中，哪個車站位於該條鐵路路線上？ \nA. 新城 \nB. 龍泉 \nC. 豐富 \nD. 六塊厝 \n答案：",
         "output": "B 龍泉",
-        "detailed explanation": "新城是四個車站中唯一位在東部的車站。"
+        "detailed explanation": "龍泉和日月潭均位於南投縣，日月潭在濁水溪的上游，而龍泉位在濁水溪的中下游處。"
     },
     {
         "id": 72,

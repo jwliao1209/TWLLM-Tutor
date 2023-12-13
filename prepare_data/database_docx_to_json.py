@@ -106,5 +106,5 @@ for file in raw_dir_files:
     all_parsed_data.extend(parsed_qa)
 
 # Save all parsed data to a single JSON file in the output directory
-json_file_path = os.path.join(out_dir, 'problem_database_original.json')
+json_file_path = os.path.join(out_dir, 'problem_database.json')
 save_json_file(json_file_path, all_parsed_data)
