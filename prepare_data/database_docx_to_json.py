@@ -10,63 +10,81 @@ def list_files(path="."):
     return [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
 
 
-def parse_qa(document):
+def parse_qa(document, subject):
     parsed_data = []
-    current_question = None
-    current_answer = None
-    current_explanation = None
-    current_difficulty = None
     question_id = 0  # Counter for question ID
-    collecting_question = False
-    collecting_explanation = False
+    current_question = ''
+    current_choices = {}
+    current_answer = ''
+    current_answer_details = ''
+    current_difficulty = None
+    collecting_choices = False
+    collecting_answer_details = False
 
     difficulty_mapping = {'易': 'easy', '中': 'medium', '難': 'hard'}
 
     for para in document.paragraphs:
         text = para.text.strip()
+        if "附圖" in text:
+            current_question = ''
+            continue  # Skip questions that contain "附圖"
         if text.startswith("題號："):
-            # Check if it is a '題組' question
-            if '題組' in text:
-                current_question = None
-                continue
-
-            # Save the previous question-answer pair if it exists and if there's a single answer
-            if current_question is not None and current_answer is not None and len(re.findall(r'\([A-E]\)', current_answer)) == 1:
-                output = current_answer
-                if current_explanation is not None:
-                    output += ' , ' + current_explanation
-                parsed_data.append({'id': question_id, 'instruction': current_question,
-                                   'output': output, 'difficulty': current_difficulty})
+            if current_question and current_answer and re.fullmatch(r'\([A-D]\)', current_answer):
+                parsed_data.append({
+                    'id': question_id,
+                    'question': current_question,
+                    'A': current_choices.get('A', ''),
+                    'B': current_choices.get('B', ''),
+                    'C': current_choices.get('C', ''),
+                    'D': current_choices.get('D', ''),
+                    'answer': current_answer.replace('(', '').replace(')', ''),  # Remove parentheses from answer
+                    'type': 'single',
+                    'answer_details': current_answer_details,
+                    'subject': subject,
+                    'difficulty': current_difficulty
+                })
                 question_id += 1
 
-            difficulty_match = re.search(r'難易度：(\w+)', text)
-            current_difficulty = difficulty_mapping[difficulty_match.group(
-                1)] if difficulty_match else None
-
-            # Initialize variables for a new question
             current_question = ''
+            current_choices = {}
             current_answer = ''
-            current_explanation = ''
-            collecting_question = True
-            collecting_explanation = False
+            current_answer_details = ''
+            collecting_choices = True
+            collecting_answer_details = False
+
+            difficulty_match = re.search(r'難易度：(\w+)', text)
+            current_difficulty = difficulty_mapping[difficulty_match.group(1)] if difficulty_match else None
         elif text.startswith("答案："):
             current_answer = text.replace("答案：", "").strip()
-            collecting_question = False
-            collecting_explanation = True
+            collecting_choices = False
+            collecting_answer_details = True
         elif text.startswith("解析："):
-            current_explanation = text.replace("解析：", "").strip()
-        elif collecting_question:
-            current_question += text + ' '
-        elif collecting_explanation and not text.startswith("題號："):
-            current_explanation += ' ' + text
+            current_answer_details = text.replace("解析：", "").strip()
+            collecting_answer_details = True
+        elif collecting_choices:
+            choice_match = re.match(r'([A-D])\.\s*(.*)', text)
+            if choice_match:
+                current_choices[choice_match.group(1)] = choice_match.group(2).strip()
+            else:
+                current_question += text + ' '
+        elif collecting_answer_details:
+            current_answer_details += ' ' + text
 
-    # Adding the last question-answer pair if exists and if there's a single answer
-    if current_question is not None and current_answer is not None and len(re.findall(r'\([A-E]\)', current_answer)) == 1:
-        output = current_answer
-        if current_explanation is not None:
-            output += ' , ' + current_explanation
-        parsed_data.append({'id': question_id, 'instruction': current_question,
-                           'output': output, 'difficulty': current_difficulty})
+    # Add the last question-answer pair if it meets the criteria
+    if current_question and current_answer and re.fullmatch(r'\([A-D]\)', current_answer):
+        parsed_data.append({
+            'id': question_id,
+            'question': current_question,
+            'A': current_choices.get('A', ''),
+            'B': current_choices.get('B', ''),
+            'C': current_choices.get('C', ''),
+            'D': current_choices.get('D', ''),
+            'answer': current_answer.replace('(', '').replace(')', ''),  # Remove parentheses from answer
+            'type': 'single',
+            'answer_details': current_answer_details,
+            'subject': subject,
+            'difficulty': current_difficulty
+        })
 
     return parsed_data
 
@@ -102,7 +120,7 @@ for file in raw_dir_files:
     document = Document(file_path)
 
     # Parse the document and append to all_parsed_data
-    parsed_qa = parse_qa(document)
+    parsed_qa = parse_qa(document, 'history')
     all_parsed_data.extend(parsed_qa)
 
 # Save all parsed data to a single JSON file in the output directory

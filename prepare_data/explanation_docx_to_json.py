@@ -12,16 +12,6 @@ def list_files(path="."):
     return file_names
 
 
-def list_directories(path='.'):
-    """
-    Lists all directories in the specified path.
-    Default is the current directory.
-    """
-    directories = [d for d in os.listdir(
-        path) if os.path.isdir(os.path.join(path, d))]
-    return directories
-
-
 def extract_leading_numbers(file_names):
     numbers = []
     for name in file_names:
@@ -83,7 +73,7 @@ def extract_text_for_questions(file_path, start_marker, explanation_marker, num_
 
             if question_count >= num_questions:
                 break  # Stop extraction after the specified number of questions
-            
+
             question_count += 1
 
             # Process the current question's text for explanation
@@ -110,7 +100,7 @@ def update_json_file(json_file_path, data_to_update):
     # Load the existing JSON data
     with open(json_file_path, 'r', encoding='utf-8') as file:
         json_data = json.load(file)
-    
+
     # Update the JSON data
     for item in json_data:
         for question_number, explanation in data_to_update:
@@ -126,8 +116,6 @@ raw_dir = sys.argv[1]
 out_dir = sys.argv[2]
 
 raw_dir_directories = list_files(raw_dir)
-years = extract_leading_numbers(raw_dir_directories)
-output_dir_directories = list_directories(out_dir)
 start_marker = "單選題"
 explanation_marker = "試題解析"
 num_questions = 72  # Number of multiple choice questions to extract
