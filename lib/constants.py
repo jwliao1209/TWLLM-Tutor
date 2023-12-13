@@ -1,6 +1,10 @@
 import os
 
 
+ZERO_SHOT = "zero-shot"
+FEW_SHOT = "few-shot"
+LORA_FINE_TUNE = "lora-fine-tune"
+
 TRAIN_FOLDERS = [
     "83",
     "84",

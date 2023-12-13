@@ -16,7 +16,7 @@ pip install -r configs/requirements.txt
 
 ## Prepare Training Dataset
 ```
-PYTHONPATH=lib python prepare_data/convert_train_format.py
+PYTHONPATH=lib python prepare_data/convert_to_train_format.py
 ```
 
 

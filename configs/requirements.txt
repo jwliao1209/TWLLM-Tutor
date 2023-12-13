@@ -1,5 +1,6 @@
 # data preprocessing
 pdfplumber==0.10.3
+python-docx==1.1.0
 
 # training
 torch==2.1.0
