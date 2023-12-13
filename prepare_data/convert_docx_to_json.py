@@ -18,10 +18,6 @@ def parse_arguments() -> Namespace:
     return parser.parse_args()
 
 
-def list_files(path="."):
-    return [f for f in glob.glob(os.path.join(path, '*.docx'))]
-
-
 def extract_answer_details(file_lines, total_num):
     question_pattern = re.compile(r"^\d+\.")  # e.g., "65."
     answer_details_dict = defaultdict(str)
@@ -47,11 +43,10 @@ def extract_answer_details(file_lines, total_num):
 
 if __name__ == "__main__":
     args = parse_arguments()
-    raw_dir_directories = list_files(args.data_folder)
-    print(raw_dir_directories)
+    file_list = glob.glob(os.path.join(args.data_folder, '*.docx'))
     total_num = 72
 
-    for f in raw_dir_directories:
+    for f in file_list:
         print(f"Processing file: {f}")
         file_lines = [paragraph.text for paragraph in Document(f).paragraphs]
         answer_details_dict = extract_answer_details(file_lines, total_num)
