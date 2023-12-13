@@ -6,6 +6,7 @@ from tqdm import tqdm
 from constants import CHECKPOINT_DIR
 from tracker import MetricTracker
 from metric.perplexity import Perplexity
+from metric.accuracy import correcter
 from utils.train_utils import dict_to_device
 
 
@@ -52,18 +53,26 @@ class Trainer:
         return loss
 
     def valid_step(self, batch_data, index):
-        pred_logit = self.model(
+        # pred_logit = self.model(
+        #     input_ids=batch_data["input_ids"],
+        #     attention_mask=batch_data["attention_mask"],
+        # ).logits
+        # ppl = self.eval_func(
+        #     pred_logits=pred_logit,
+        #     labels=batch_data["input_ids"],
+        #     output_masks=batch_data["output_mask"],
+        # )
+        generated_tokens = self.model.generate(
             input_ids=batch_data["input_ids"],
             attention_mask=batch_data["attention_mask"],
-        ).logits
-
-        ppl = self.eval_func(
-            pred_logits=pred_logit,
-            labels=batch_data["input_ids"],
-            output_masks=batch_data["output_mask"],
+            max_new_tokens=512,
         )
-        self.tracker.update(f"valid/ppl", ppl, pred_logit.shape[0])
+        generations = self.tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)[0]
+        generations = generations.replace(batch_data["prompt"][0], "").strip()
+        correct = int(correcter(generations, batch_data['answer'][0], batch_data['answer_description'][0]))
 
+        # self.tracker.update(f"valid/ppl", ppl, pred_logit.shape[0])
+        self.tracker.update(f"valid/acc", correct, 1)
         return
 
     def log(self, record):
@@ -97,10 +106,11 @@ class Trainer:
     def valid_one_epoch(self):
         self.model.eval()
         self.progress_bar = tqdm(self.valid_loader, desc=f"Validation {self.cur_ep}")
-        self.tracker.reset(keys=["valid/ppl"])
+        self.tracker.reset(keys=["valid/acc"])
 
         for step, batch_data in enumerate(self.progress_bar, start=1):
             batch_data = dict_to_device(batch_data, self.device)
+            self.progress_bar.set_postfix(self.tracker.result())
             self.valid_step(batch_data, step)
 
         self.log({"epoch": self.cur_ep, **self.tracker.result()})
@@ -110,7 +120,7 @@ class Trainer:
     def fit(self, epoch):
         self.model.to(self.device)
         for self.cur_ep in range(1, epoch+1):
-            self.train_one_epoch()
+            # self.train_one_epoch()
             self.valid_one_epoch()
             self.model.save_pretrained(
                 os.path.join(

@@ -70,8 +70,8 @@ if __name__ == "__main__":
     train_data = read_json(args.train_data_path)
     valid_data = read_json(args.valid_data_path)
 
-    train_dataset = AcademicDataset(train_data, tokenizer, max_length=512)
-    valid_dataset = AcademicDataset(valid_data, tokenizer, max_length=2048)
+    train_dataset = AcademicDataset(train_data, tokenizer, max_length=512, is_train=True)
+    valid_dataset = AcademicDataset(valid_data, tokenizer, max_length=2048, is_train=False)
 
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_func)
     valid_loader = DataLoader(valid_dataset, batch_size=1, shuffle=False, collate_fn=collate_func)
