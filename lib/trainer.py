@@ -120,7 +120,7 @@ class Trainer:
     def fit(self, epoch):
         self.model.to(self.device)
         for self.cur_ep in range(1, epoch+1):
-            # self.train_one_epoch()
+            self.train_one_epoch()
             self.valid_one_epoch()
             self.model.save_pretrained(
                 os.path.join(
