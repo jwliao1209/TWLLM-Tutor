@@ -125,7 +125,7 @@ class Trainer:
             self.model.save_pretrained(
                 os.path.join(
                 CHECKPOINT_DIR,
-                f"epoch={self.cur_ep}_ppl={self.tracker.result().get('valid/ppl', 0)}"
+                f"epoch={self.cur_ep}_acc={self.tracker.result().get('valid/acc', 0)}"
             )
         )
         return
