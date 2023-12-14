@@ -1,4 +1,5 @@
 import math
+import os
 from argparse import ArgumentParser, Namespace
 from functools import partial
 
@@ -9,16 +10,24 @@ from transformers import (AutoConfig, AutoModelForMultipleChoice,
                           AutoTokenizer, default_data_collator, get_scheduler)
 
 import wandb
-from lib.lib_mc.constants import MC_DATA_FILE
+from lib.lib_mc.constants import MC_DATA_FILE_WITH_DATABASE
 from lib.lib_mc.preprocess import preprocess_mc_func
 from lib.lib_mc.trainer import MCTrainer
 from lib.optimizer import get_optimizer
 from lib.utils.train_utils import set_random_seeds
 
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 
 def parse_arguments() -> Namespace:
     parser = ArgumentParser(description="Multiple Choice")
 
+    parser.add_argument("--train_data", type=str,
+                        default="data/train_database_mc/train.json",
+                        help="train data")
+    parser.add_argument("--valid_data", type=str,
+                        default="data/train_database_mc/valid.json",
+                        help="valid data")
     parser.add_argument("--tokenizer_name", type=str,
                         default="bert-base-chinese",
                         help="tokenizer name")
@@ -29,7 +38,7 @@ def parse_arguments() -> Namespace:
                         default=8,
                         help="batch size")
     parser.add_argument("--accum_grad_step", type=int,
-                        default=10,
+                        default=4,
                         help="accumulation gradient steps")
     parser.add_argument("--epoch", type=int,
                         default=10,
@@ -67,7 +76,7 @@ if __name__ == "__main__":
         use_fast=True,
         trust_remote_code=False,
     )
-    datasets = load_dataset("json", data_files=MC_DATA_FILE)
+    datasets = load_dataset("json", data_files={'train': args.train_data, 'valid': args.valid_data})
     preprocess_func = partial(preprocess_mc_func, tokenizer=tokenizer)
     processed_datasets = datasets.map(
         preprocess_func,
@@ -78,12 +87,15 @@ if __name__ == "__main__":
         processed_datasets["train"],
         batch_size=args.batch_size,
         collate_fn=default_data_collator,
+        num_workers=8,
         shuffle=True,
+        drop_last=True,
     )
     valid_loader = DataLoader(
         processed_datasets["valid"],
         batch_size=args.batch_size,
         collate_fn=default_data_collator,
+        num_workers=8,
         shuffle=False,
     )
 

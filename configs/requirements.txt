@@ -12,6 +12,7 @@ sentencepiece==0.1.99
 protobuf==4.25.1
 wandb==0.15.12
 datasets
+ipython
 
 # others
 gdown==4.7.1

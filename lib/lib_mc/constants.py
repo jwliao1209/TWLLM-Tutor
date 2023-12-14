@@ -13,6 +13,11 @@ MC_DATA_FILE = {
     "train": os.path.join(DATA_DIR, MC_TRAIN_FILE),
     "valid": os.path.join(DATA_DIR, MC_VALID_FILE),
 }
+
+MC_DATA_FILE_WITH_DATABASE = {
+    "train": os.path.join(DATA_DIR, "train_with_database.json"),
+    "valid": os.path.join(DATA_DIR, MC_VALID_FILE),
+}
 MC_ENDING_LEN = 4
 MC_LAB_COL_NAME = "label"
 MC_MAX_SEQ_LEN = 512

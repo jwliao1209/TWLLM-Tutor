@@ -37,6 +37,8 @@ class BaseTrainer:
         self.tracker = MetricTracker()
         self.logger = logger
         self.bf16 = bf16
+        self.cur_ep = 0
+        self.currunt_step = 0
 
     def train_step(self, batch_data, step):
         NotImplementedError
@@ -44,46 +46,57 @@ class BaseTrainer:
     def valid_step(self, batch_data, step):
         NotImplementedError
 
-    def log(self, record):
+    def log(self, record, step=None):
         # self.progress_bar.set_postfix(record)
         if self.logger is not None:
-            self.logger.log(record)
+            self.logger.log(record, step=step)
         return
 
     def train_one_epoch(self):
         self.model.train()
-        self.progress_bar = tqdm(self.train_loader, desc=f"Training {self.cur_ep}")
-        self.tracker.reset(keys=["train/loss", "train/acc"])
-
-        for step, batch_data in enumerate(self.progress_bar, start=1):
+        progress_bar = tqdm(self.train_loader, desc=f"Training {self.cur_ep}", unit_scale=self.train_loader.batch_size)
+        self.tracker.reset(keys=["train/acc"])
+        acc_loss = 0
+        for step, batch_data in enumerate(progress_bar, start=1):
             batch_data = dict_to_device(batch_data, self.device)
             with torch.cuda.amp.autocast(enabled=self.bf16, dtype=torch.bfloat16 if self.bf16 else torch.float32):
                 loss = self.train_step(batch_data, step)
-            self.progress_bar.set_postfix({**self.tracker.result(), "lr": self.lr_scheduler.get_last_lr()[0]})
-            self.log({**self.tracker.result(), "lr": self.lr_scheduler.get_last_lr()[0]})
 
-            (loss / self.accum_grad_step).backward()
+            loss = (loss / self.accum_grad_step)
+            loss.backward()
+            acc_loss += loss
             if step % self.accum_grad_step == 0:
+                lr = self.lr_scheduler.get_last_lr()[0]
+                self.log({"train/loss": acc_loss.item(), "lr": lr}, step=self.currunt_step)
+                progress_bar.set_postfix({'loss': acc_loss.item(), "lr": lr})
+
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
                 self.optimizer.step()
                 self.optimizer.zero_grad()
                 self.lr_scheduler.step()
+                acc_loss = 0
 
-        self.progress_bar.close()
+            self.currunt_step += 1
+
+        progress_bar.set_postfix({'loss': acc_loss.item(), "lr": lr, **self.tracker.result()})
+        self.log(self.tracker.result(), step=self.currunt_step)
+
+        progress_bar.close()
         return
 
     @torch.no_grad()
     def valid_one_epoch(self):
         self.model.eval()
-        self.progress_bar = tqdm(self.valid_loader, desc=f"Validation {self.cur_ep}")
         self.tracker.reset(keys=["valid/loss", "valid/acc"])
 
-        for step, batch_data in enumerate(self.progress_bar, start=1):
+        progress_bar = tqdm(self.valid_loader, desc=f"Validation {self.cur_ep}")
+        for step, batch_data in enumerate(progress_bar, start=1):
             batch_data = dict_to_device(batch_data, self.device)
             self.valid_step(batch_data, step)
-            self.progress_bar.set_postfix(self.tracker.result())
+            progress_bar.set_postfix(self.tracker.result())
 
-        self.log({"epoch": self.cur_ep, **self.tracker.result()})
-        self.progress_bar.close()
+        self.log({**self.tracker.result()}, step=self.currunt_step)
+        progress_bar.close()
         self.model.save_pretrained(
             os.path.join(
                 CHECKPOINT_DIR,
@@ -94,7 +107,9 @@ class BaseTrainer:
 
     def fit(self, epoch):
         self.model.to(self.device)
-        for self.cur_ep in range(1, epoch+1):
+        self.valid_one_epoch()
+        for _ in range(epoch):
+            self.cur_ep += 1
             self.train_one_epoch()
             self.valid_one_epoch()
         return
@@ -134,7 +149,6 @@ class MCTrainer(BaseTrainer):
         correct_num = get_correct_num(preds, batch_data["labels"])
         n = preds.shape[0]
 
-        self.tracker.update(f"{prefix}/loss", loss / n, n)
         self.tracker.update(f"{prefix}/acc", correct_num / n, n)
 
         return loss
