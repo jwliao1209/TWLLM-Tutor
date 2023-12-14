@@ -1,4 +1,4 @@
-[
+data_list = [
     {
         "id": 1,
         "instruction": "問題：有關「男兒有淚不輕彈」或「男主外，女主內」之敘述，下列哪一概念最能說明其特性？ \nA. 性別刻板印象 \nB. 性別主流化 \nC. 性別歧視 \nD. 性別平等 \n答案：",
@@ -432,3 +432,9 @@
         "detailed explanation": "無論是傳統農業活動，或是現代工商業活動，都需要足夠的水源以利使用，因此某地須先克服淡水資源短缺的問題。"
     }
 ]
+
+from utils.data_utils import write_json
+
+write_json({data["id"]: data["detailed explanation"] for data in data_list},
+           "/home/jiawei/Desktop/github/adl/TWLLM-Tutor/data/public/university_exams/social_study/99/explanation.json"
+)

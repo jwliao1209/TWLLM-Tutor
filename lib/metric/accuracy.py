@@ -1,13 +1,20 @@
 import re
+import numpy as np
+
 """
 implement mutiple choice accuracy
 """
+
+
+def get_correct_num(y_pred: np.ndarray, y_true: np.ndarray) -> np.ndarray:
+    return (y_pred == y_true).float().sum()
+
 
 # Todo: implement accuracy for multiple choice
 # class Accuracy:
 #     def __init__(self):
 #         pass
-    
+
 #     def __call__(self):
 #         pass
 

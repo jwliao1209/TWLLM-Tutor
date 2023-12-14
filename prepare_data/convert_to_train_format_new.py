@@ -1,4 +1,6 @@
 import os
+import re
+from collections import OrderedDict
 from argparse import ArgumentParser, Namespace
 
 from constants import TRAIN_FOLDERS, VALID_FOLDERS
@@ -49,18 +51,29 @@ def process_dir_data(directory):
         transformed_data_dict.update(
             {
                 data["id"]: 
-                    data | {
-                        "year": os.path.basename(year),
-                        "subject": "social_study",
-                        "answer_details": explanation_dict.get(str(data["id"]), ""),
-                    }
+                    OrderedDict(
+                        subject="social_study",
+                        year=os.path.basename(year),
+                        id=data["id"],
+                        type=data["type"],
+                        question=data["question"],
+                        A=data["A"],
+                        B=data["B"],
+                        C=data["C"],
+                        D=data["D"],
+                        answer=data["answer"],
+                        answer_details=explanation_dict.get(str(data["id"]), ""),
+                    )
             }
         )
 
-    # for group in problem_group:
-    #     for i in group["ids"]:
-    #         if transformed_data_dict.get(i, None):
-    #             transformed_data_dict[i]["question"] = group["prefix"] + transformed_data_dict[i]["question"]
+    for group in problem_group:
+        for i in group["ids"]:
+            if transformed_data_dict.get(i, None):
+                if "image" in group["prefix"]:
+                    transformed_data_dict.pop(i, None)
+                else:
+                    transformed_data_dict[i]["question"] = group["prefix"] + transformed_data_dict[i]["question"]
 
     return list(transformed_data_dict.values())
 
