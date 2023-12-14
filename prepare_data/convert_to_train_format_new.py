@@ -41,6 +41,8 @@ def process_dir_data(directory):
             continue
         if "table" in data.get("A"):
             continue
+        if "E" in data.keys():
+            continue
         if data.get("type") == "multi":
             continue
         if data.get("answer") == "無答案":
