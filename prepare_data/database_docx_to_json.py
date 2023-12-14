@@ -1,7 +1,8 @@
+import json
 import os
 import re
 import sys
-import json
+
 from docx import Document
 
 
@@ -69,7 +70,6 @@ def parse_qa(document, subject):
                 current_question += text + ' '
         elif collecting_answer_details:
             current_answer_details += ' ' + text
-
     # Add the last question-answer pair if it meets the criteria
     if current_question and current_answer and re.fullmatch(r'\([A-D]\)', current_answer):
         parsed_data.append({
@@ -85,8 +85,36 @@ def parse_qa(document, subject):
             'subject': subject,
             'difficulty': current_difficulty
         })
-
     return parsed_data
+
+
+def _parse_answer(text, options='A'):
+    if options in ['A', 'B', 'C']:
+        next_option = chr(ord(options) + 1)
+        match = re.search(rf'\({options}\)(.*?)\({next_option}\)', text)
+    else:
+        match = re.search(rf'\({options}\)(.*)', text)
+    answer = match.group(1).strip() if match else ''
+    return answer
+
+
+def parse_answer(parsed_qa):
+    for i, x in enumerate(parsed_qa):
+        x['raw_question'] = x['question'].replace('\u3000', ' ')
+        splits = x['raw_question'].split('\n')
+        new_question = splits[0]
+        answers = ''.join(splits[1:])
+        x['A'] = _parse_answer(answers, 'A')
+        x['B'] = _parse_answer(answers, 'B')
+        x['C'] = _parse_answer(answers, 'C')
+        x['D'] = _parse_answer(answers, 'D')
+        x['question'] = new_question
+
+    return parsed_qa
+
+
+def drop_fail(parsed_qa):
+    return [x for x in parsed_qa if len(x['A']) * len(x['B']) * len(x['C']) * len(x['D'])]
 
 
 def save_json_file(json_file_path, data):
@@ -121,7 +149,8 @@ for file in raw_dir_files:
 
     # Parse the document and append to all_parsed_data
     parsed_qa = parse_qa(document, 'history')
-    all_parsed_data.extend(parsed_qa)
+    parsed_data = parse_answer(parsed_qa)
+    all_parsed_data.extend(parsed_data)
 
 # Save all parsed data to a single JSON file in the output directory
 json_file_path = os.path.join(out_dir, 'problem_database.json')
