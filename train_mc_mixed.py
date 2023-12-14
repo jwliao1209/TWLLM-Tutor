@@ -127,14 +127,24 @@ class VisibleBertModel(BertModel):
             head_mask, self.config.num_hidden_layers)
 
         word_embeddings = self.image2word_proj(image_embeddings)
-        print(word_embeddings.shape)
+
+        is_image = input_ids < 0
+        image_index = torch.where(input_ids < 0, -1 - input_ids, 0)
+        word_idnex = torch.where(input_ids < 0, 0, input_ids)
+        got = []
+        for i in range(len(word_embeddings)):
+            got.append(word_embeddings[i][image_index[i]])
+        got = torch.stack(got)
+
         embedding_output = self.embeddings(
-            input_ids=torch.where(input_ids < 0, 0, input_ids),
+            input_ids=word_idnex,
             position_ids=position_ids,
             token_type_ids=token_type_ids,
             inputs_embeds=inputs_embeds,
             past_key_values_length=past_key_values_length,
         )
+        embedding_output = torch.where(is_image[:, :, None], got, embedding_output)
+
         encoder_outputs = self.encoder(
             embedding_output,
             attention_mask=extended_attention_mask,
@@ -181,7 +191,7 @@ class VisibleBertForMultipleChoice(BertForMultipleChoice):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
-        image_embeddings = None,
+        image_embeddings: torch.Tensor = None,
     ) -> Union[Tuple[torch.Tensor], MultipleChoiceModelOutput]:
         r"""
         labels (`torch.LongTensor` of shape `(batch_size,)`, *optional*):
@@ -194,6 +204,10 @@ class VisibleBertForMultipleChoice(BertForMultipleChoice):
 
         input_ids = input_ids.view(-1, input_ids.size(-1)
                                    ) if input_ids is not None else None
+
+        image_embeddings = image_embeddings.view(
+            input_ids.size(0), image_embeddings.size(-2), image_embeddings.size(-1)
+        )
         attention_mask = attention_mask.view(
             -1, attention_mask.size(-1)) if attention_mask is not None else None
         token_type_ids = token_type_ids.view(
