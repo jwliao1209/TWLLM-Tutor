@@ -101,11 +101,12 @@ if __name__ == "__main__":
 
             prediction_list.append(
                 {
-                    "id": batch_data['id'][0],
+                    "id": int(batch_data['id'][0]),
                     "year": batch_data['year'][0],
                     "prompt": batch_data['prompt'][0],
                     "generation": generations,
                     "answer": batch_data['answer'][0],
+                    "answer_details": batch_data['answer_description'][0],
                     "is_correct": is_correct,
                 }
             )

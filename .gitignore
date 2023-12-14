@@ -5,3 +5,4 @@ model_weight
 checkpoint
 wandb
 *.pyc
+tmp.py
