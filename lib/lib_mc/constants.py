@@ -1,6 +1,5 @@
 import os
 
-
 DATA_DIR = "data/train_data_mc"
 CHECKPOINT_DIR = "checkpoint"
 PREDICTION_DIR = "pred"
@@ -15,5 +14,5 @@ MC_DATA_FILE = {
     "valid": os.path.join(DATA_DIR, MC_VALID_FILE),
 }
 MC_ENDING_LEN = 4
-MC_LAB_COL_NAME  = "label"
+MC_LAB_COL_NAME = "label"
 MC_MAX_SEQ_LEN = 512

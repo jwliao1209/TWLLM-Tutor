@@ -1,12 +1,9 @@
 """Parse university exam from raw text"""
-from typing import Any
-
+import json
 import os
 import re
-import json
 import sys
-
-
+from typing import Any
 
 DOC_TO_TXT_CONFUSION = {
     '1': '1l',
@@ -103,6 +100,7 @@ def parse_qa_dict(text: str, question_id: int) -> dict[str, Any]:
     else:
         return {}, ""
 
+
 def parse_question_group(text: str) -> tuple[dict[str, Any], str]:
     """Parse question groups and remove them from raw text"""
     question_groups = []
@@ -135,6 +133,7 @@ def parse_question_group(text: str) -> tuple[dict[str, Any], str]:
         text = text[:chunk_left] + text[group_match.start():]
 
     return question_groups, text
+
 
 def main():
     """main script"""

@@ -1,21 +1,19 @@
 import math
-import torch
-import wandb
-
-from argparse import Namespace, ArgumentParser
+from argparse import ArgumentParser, Namespace
 from functools import partial
+
+import torch
 from datasets import load_dataset
 from torch.utils.data import DataLoader
-from transformers import AutoTokenizer, default_data_collator
-from transformers import AutoConfig, AutoModelForMultipleChoice
-from transformers import get_scheduler
+from transformers import (AutoConfig, AutoModelForMultipleChoice,
+                          AutoTokenizer, default_data_collator, get_scheduler)
 
-from lib_mc.constants import MC_DATA_FILE
-from lib_mc.preprocess import preprocess_mc_func
-from lib_mc.trainer import MCTrainer
-
-from optimizer import get_optimizer
-from utils.train_utils import set_random_seeds
+import wandb
+from lib.lib_mc.constants import MC_DATA_FILE
+from lib.lib_mc.preprocess import preprocess_mc_func
+from lib.lib_mc.trainer import MCTrainer
+from lib.optimizer import get_optimizer
+from lib.utils.train_utils import set_random_seeds
 
 
 def parse_arguments() -> Namespace:
@@ -53,6 +51,8 @@ def parse_arguments() -> Namespace:
                         help="deivce id")
     parser.add_argument("--train_from_scratch", action="store_true",
                         help="Option of train from scratch")
+    parser.add_argument("--bf16", action="store_true",
+                        help="Option of using bf16")
 
     return parser.parse_args()
 
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     # Prepared model
     device = torch.device(f"cuda:{args.device_id}" if torch.cuda.is_available() else "cpu")
     model_config = AutoConfig.from_pretrained(args.model_name_or_path)
-    
+
     if args.train_from_scratch:
         model = AutoModelForMultipleChoice.from_config(model_config).to(device)
     else:
@@ -101,9 +101,7 @@ if __name__ == "__main__":
         ).to(device)
 
     # Prepared optimizer and learning rate scheduler
-    optimizer = get_optimizer(
-        model, lr=args.lr, weight_decay=args.weight_decay
-    )
+    optimizer = get_optimizer(model, lr=args.lr, weight_decay=args.weight_decay)
     num_update_steps_per_epoch = math.ceil(len(train_loader) / args.accum_grad_step)
     max_train_steps = args.epoch * num_update_steps_per_epoch
     lr_scheduler = get_scheduler(
@@ -115,9 +113,9 @@ if __name__ == "__main__":
 
     # Prepared logger
     wandb.init(
-        project="adl_hw1",
+        project="adl-final",
         group="mc",
-        name="experiment_mc", 
+        name="experiment_mc",
         config={
             "tokenizer": args.tokenizer_name,
             "model": args.model_name_or_path,
@@ -142,6 +140,7 @@ if __name__ == "__main__":
         accum_grad_step=args.accum_grad_step,
         lr_scheduler=lr_scheduler,
         logger=wandb,
+        bf16=args.bf16,
     )
     trainer.fit(epoch=args.epoch)
     wandb.finish()

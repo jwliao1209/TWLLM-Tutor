@@ -1,8 +1,8 @@
 import os
 import re
-import pdfplumber
+from argparse import ArgumentParser, Namespace
 
-from argparse import Namespace, ArgumentParser
+import pdfplumber
 
 
 def parse_arguments() -> Namespace:
@@ -32,7 +32,7 @@ def extract_answer(text):
                .replace("（", "")
                .replace("）", "")
                for num, ans in matches
-    }
+               }
     return answers
 
 
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     print("============================================================")
     print("Original Scan Answer:")
     print(text)
-    
+
     print("============================================================")
     print("Cleaned Answer:")
     cleaned_lines = [line for line in text.split('\n') if re.search(r'\d', line)]
@@ -74,7 +74,7 @@ if __name__ == "__main__":
             print(f"The answer of question {i} is {answers.get(i)}")
 
     answer_text = "\n".join([f"{i}, {answer}" for i, answer in sorted(answers.items())])
-    
+
     print("============================================================")
     print("Final Answer:")
     print(answer_text)

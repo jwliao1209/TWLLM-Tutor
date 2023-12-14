@@ -1,13 +1,18 @@
 import torch
 from torch.optim import Optimizer
 
+optimizers = {
+    'adamw': torch.optim.AdamW,
+    'sgd': torch.optim.SGD,
+}
+
 
 def get_optimizer(
     model,
     optimizer_name: str = "adamw",
     lr: float = 3e-5,
     weight_decay: float = 0,
-    ) -> Optimizer:
+) -> Optimizer:
 
     no_decay = ["bias", "LayerNorm.weight", "layer_norm.weight"]
     optimizer_grouped_parames = [
@@ -20,4 +25,4 @@ def get_optimizer(
             "weight_decay": 0.0,
         },
     ]
-    return torch.optim.AdamW(optimizer_grouped_parames, lr=lr)
+    return optimizers[optimizer_name](optimizer_grouped_parames, lr=lr)

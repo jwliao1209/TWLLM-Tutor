@@ -1,12 +1,13 @@
+import glob
 import os
 import re
-import glob
-from docx import Document
-from pprint import pprint
-from collections import defaultdict
 from argparse import ArgumentParser, Namespace
+from collections import defaultdict
+from pprint import pprint
 
-from utils.data_utils import write_json
+from docx import Document
+
+from lib.utils.data_utils import write_json
 
 
 def parse_arguments() -> Namespace:

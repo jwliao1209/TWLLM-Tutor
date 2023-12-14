@@ -1,7 +1,8 @@
+import json
 import os
 import re
 import sys
-import json
+
 from docx import Document
 
 

@@ -1,6 +1,6 @@
+import json
 import os
 import sys
-import json
 
 
 def filter_json_file(input_file_path, output_file_path):

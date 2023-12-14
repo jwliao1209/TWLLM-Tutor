@@ -1,7 +1,8 @@
+import json
 import os
 import re
 import sys
-import json
+
 from docx import Document
 
 
@@ -105,7 +106,7 @@ def update_json_file(json_file_path, data_to_update):
     # Load the existing JSON data
     with open(json_file_path, 'r', encoding='utf-8') as file:
         json_data = json.load(file)
-    
+
     # Update the JSON data
     for item in json_data:
         for question_number, explanation in data_to_update:

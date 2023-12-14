@@ -1,7 +1,8 @@
 from itertools import chain
+
 from transformers import AutoTokenizer
 
-from lib_mc.constants import MC_ENDING_LEN, MC_MAX_SEQ_LEN
+from .constants import MC_ENDING_LEN, MC_MAX_SEQ_LEN
 
 
 def flatten_list(input_list: list) -> list:
@@ -10,7 +11,7 @@ def flatten_list(input_list: list) -> list:
 
 def unflatten_list(input_list: list, sub_list_num) -> list:
     return [
-        input_list[i : i + sub_list_num]
+        input_list[i: i + sub_list_num]
         for i in range(0, len(input_list), sub_list_num)
     ]
 

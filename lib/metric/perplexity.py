@@ -1,5 +1,5 @@
-import torch
 import numpy as np
+import torch
 
 
 class Perplexity:
@@ -11,5 +11,6 @@ class Perplexity:
         shift_labels = labels[..., 1:].contiguous()
         shift_output_masks = output_masks[..., 1:].contiguous()
         length = shift_output_masks.sum(dim=1)
-        scores = torch.exp((self.cross_entropy(shift_logits, shift_labels) * shift_output_masks).sum(dim=1) / length).tolist()
+        scores = torch.exp((self.cross_entropy(shift_logits, shift_labels) *
+                           shift_output_masks).sum(dim=1) / length).tolist()
         return np.mean(scores)

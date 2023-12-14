@@ -1,9 +1,9 @@
-import os
 import logging
+import os
 from argparse import ArgumentParser, Namespace
 
-from constants import TRAIN_FOLDERS, VALID_FOLDERS
-from utils.data_utils import read_json, write_json
+from lib.constants import TRAIN_FOLDERS, VALID_FOLDERS
+from lib.utils.data_utils import read_json, write_json
 
 
 def parse_arguments() -> Namespace:

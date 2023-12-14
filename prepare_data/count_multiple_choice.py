@@ -1,5 +1,5 @@
-import os
 import json
+import os
 
 
 def list_directories(path='.'):
@@ -21,6 +21,6 @@ for directory in current_dir_directories:
         data = json.load(file)
         # print(f"Number of records: {len(data)}")
         count.append(len(data))
-        
+
 print(f"Total number of records: {sum(count)}")
 print(f"Average number of records: {sum(count)/len(count)}")

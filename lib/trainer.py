@@ -1,13 +1,13 @@
 import os
+
 import torch
-
-from tqdm import tqdm
-
 from constants import CHECKPOINT_DIR
-from tracker import MetricTracker
-from metric.perplexity import Perplexity
 from metric.accuracy import correcter
-from utils.train_utils import dict_to_device
+from metric.perplexity import Perplexity
+from tqdm import tqdm
+from tracker import MetricTracker
+
+from .utils.train_utils import dict_to_device
 
 
 class Trainer:
@@ -24,8 +24,8 @@ class Trainer:
         logger=None,
         *arg,
         **kwarg,
-        ):
-        
+    ):
+
         self.tokenizer = tokenizer
         self.model = model
         self.device = device
@@ -39,6 +39,7 @@ class Trainer:
         self.eval_func = Perplexity()
         self.tracker = MetricTracker()
         self.logger = logger
+        self.total_step = 0
 
     def train_step(self, batch_data, index):
         outputs = self.model(
@@ -75,10 +76,10 @@ class Trainer:
         self.tracker.update(f"valid/acc", correct, 1)
         return
 
-    def log(self, record):
+    def log(self, record, step=None):
         # self.progress_bar.set_postfix(record)
         if self.logger is not None:
-            self.logger.log(record)
+            self.logger.log(record, step=step)
         return
 
     def train_one_epoch(self):
@@ -90,7 +91,7 @@ class Trainer:
             batch_data = dict_to_device(batch_data, self.device)
             loss = self.train_step(batch_data, step)
             self.progress_bar.set_postfix({**self.tracker.result(), "lr": self.lr_scheduler.get_last_lr()[0]})
-            self.log({**self.tracker.result(), "lr": self.lr_scheduler.get_last_lr()[0]})
+            self.log({**self.tracker.result(), "lr": self.lr_scheduler.get_last_lr()[0]}, step=self.total_step)
 
             (loss / self.accum_grad_step).backward()
             if step % self.accum_grad_step == 0:
@@ -98,6 +99,7 @@ class Trainer:
                 self.optimizer.step()
                 self.optimizer.zero_grad()
                 self.lr_scheduler.step()
+            self.total_step += 1
 
         self.progress_bar.close()
         return
@@ -113,7 +115,7 @@ class Trainer:
             self.progress_bar.set_postfix(self.tracker.result())
             self.valid_step(batch_data, step)
 
-        self.log({"epoch": self.cur_ep, **self.tracker.result()})
+        self.log({"epoch": self.cur_ep, **self.tracker.result()}, step=self.total_step)
         self.progress_bar.close()
         return
 
@@ -124,8 +126,8 @@ class Trainer:
             self.valid_one_epoch()
             self.model.save_pretrained(
                 os.path.join(
-                CHECKPOINT_DIR,
-                f"epoch={self.cur_ep}_acc={self.tracker.result().get('valid/acc', 0)}"
+                    CHECKPOINT_DIR,
+                    f"epoch={self.cur_ep}_acc={self.tracker.result().get('valid/acc', 0)}"
+                )
             )
-        )
         return

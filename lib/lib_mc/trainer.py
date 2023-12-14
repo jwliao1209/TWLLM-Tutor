@@ -1,11 +1,12 @@
 import os
+
 import torch
 from tqdm import tqdm
-from lib_mc.constants import CHECKPOINT_DIR
-from lib_mc.tracker import MetricTracker
-from metric.accuracy import get_correct_num
 
-from utils.train_utils import dict_to_device
+from ..metric.accuracy import get_correct_num
+from ..utils.train_utils import dict_to_device
+from .constants import CHECKPOINT_DIR
+from .tracker import MetricTracker
 
 
 class BaseTrainer:
@@ -19,9 +20,10 @@ class BaseTrainer:
         accum_grad_step,
         lr_scheduler,
         logger=None,
+        bf16=False,
         *arg,
         **kwarg,
-        ):
+    ):
 
         self.model = model
         self.device = device
@@ -34,6 +36,7 @@ class BaseTrainer:
         self.lr_scheduler = lr_scheduler
         self.tracker = MetricTracker()
         self.logger = logger
+        self.bf16 = bf16
 
     def train_step(self, batch_data, step):
         NotImplementedError
@@ -54,7 +57,8 @@ class BaseTrainer:
 
         for step, batch_data in enumerate(self.progress_bar, start=1):
             batch_data = dict_to_device(batch_data, self.device)
-            loss = self.train_step(batch_data, step)
+            with torch.cuda.amp.autocast(enabled=self.bf16, dtype=torch.bfloat16 if self.bf16 else torch.float32):
+                loss = self.train_step(batch_data, step)
             self.progress_bar.set_postfix({**self.tracker.result(), "lr": self.lr_scheduler.get_last_lr()[0]})
             self.log({**self.tracker.result(), "lr": self.lr_scheduler.get_last_lr()[0]})
 
@@ -77,7 +81,7 @@ class BaseTrainer:
             batch_data = dict_to_device(batch_data, self.device)
             self.valid_step(batch_data, step)
             self.progress_bar.set_postfix(self.tracker.result())
-        
+
         self.log({"epoch": self.cur_ep, **self.tracker.result()})
         self.progress_bar.close()
         self.model.save_pretrained(
@@ -107,9 +111,10 @@ class MCTrainer(BaseTrainer):
         accum_grad_step,
         lr_scheduler,
         logger=None,
+        bf16=False,
         *arg,
         **kwarg,
-        ):
+    ):
         super().__init__(
             model,
             device,
@@ -119,6 +124,7 @@ class MCTrainer(BaseTrainer):
             accum_grad_step,
             lr_scheduler,
             logger,
+            bf16,
         )
 
     def share_step(self, batch_data, index, prefix):
@@ -138,4 +144,3 @@ class MCTrainer(BaseTrainer):
 
     def valid_step(self, batch_data, index):
         return self.share_step(batch_data, index, "valid")
-

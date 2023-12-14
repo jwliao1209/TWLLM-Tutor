@@ -1,19 +1,18 @@
 import math
-import wandb
+from argparse import ArgumentParser, Namespace
 
 import torch
+import wandb
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from torch.utils.data import DataLoader
-
-from argparse import Namespace, ArgumentParser
 from transformers import AutoModelForCausalLM, AutoTokenizer, get_scheduler
-from peft import LoraConfig, prepare_model_for_kbit_training, get_peft_model
 
 from configs import get_bnb_config
-from dataset import AcademicDataset, collate_func
-from optimizer import get_optimizer
-from trainer import Trainer
-from utils.train_utils import set_random_seeds
-from utils.data_utils import read_json
+from lib.dataset import AcademicDataset, collate_func
+from lib.optimizer import get_optimizer
+from lib.trainer import Trainer
+from lib.utils.data_utils import read_json
+from lib.utils.train_utils import set_random_seeds
 
 
 def parse_arguments() -> Namespace:
@@ -83,7 +82,7 @@ if __name__ == "__main__":
         args.base_model_path,
         torch_dtype=torch.bfloat16,
         quantization_config=bnb_config,
-        
+
     )
     peft_config = LoraConfig(
         lora_alpha=16,
@@ -109,7 +108,7 @@ if __name__ == "__main__":
     # Prepared logger
     wandb.init(
         project="adl_final_project",
-        name="experiment", 
+        name="experiment",
         config={
             "tokenizer": args.base_model_path,
             "model": args.base_model_path,

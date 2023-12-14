@@ -1,8 +1,8 @@
 import os
 from argparse import ArgumentParser, Namespace
 
-from constants import TRAIN_FOLDERS, VALID_FOLDERS
-from utils.data_utils import read_json, write_json
+from lib.constants import TRAIN_FOLDERS, VALID_FOLDERS
+from lib.utils.data_utils import read_json, write_json
 
 
 def parse_arguments() -> Namespace:
@@ -48,12 +48,12 @@ def process_dir_data(directory):
 
         transformed_data_dict.update(
             {
-                data["id"]: 
+                data["id"]:
                     data | {
                         "year": os.path.basename(year),
                         "subject": "social_study",
                         "answer_details": explanation_dict.get(str(data["id"]), ""),
-                    }
+                }
             }
         )
 

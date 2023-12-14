@@ -2,7 +2,7 @@
 
 ## Directory Structure
 
-```
+```text
 data
 |- public       # Public is for data we consider publishable (without copyright issues, etc).
 |- private      # Private is for data we don't want to publish (For future extensions).
@@ -12,7 +12,8 @@ data
 ## Data Format
 
 We use a directory to save Each textual data.
-```
+
+```text
 {data_name}
 |- metadata.txt # The metadata of this data
 |- content.json # The main content of the data
@@ -25,6 +26,7 @@ We use a directory to save Each textual data.
 ### Content
 
 For each year's [university exam](https://www.ceec.edu.tw/xmfile?xsmsid=0J052424829869345634), we parse the question and answer as the following format
+
 ```json
 {
     "question_groups": [
@@ -47,7 +49,7 @@ For each year's [university exam](https://www.ceec.edu.tw/xmfile?xsmsid=0J052424
             "B": "增進社會福利",
             "C": "提高經營效率",
             "D": "揚棄共產主義",
-        }, 
+        },
         {
             "id": 72,
             "type": "multi",
@@ -74,7 +76,8 @@ For each year's [university exam](https://www.ceec.edu.tw/xmfile?xsmsid=0J052424
 ```
 
 ### Analysis of data
-```
+
+```text
 Number of Multiple Choices
 |- Total number of questions: 2185
 |- Average number of questions: 68
