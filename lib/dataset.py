@@ -60,7 +60,8 @@ class AcademicDataset(Dataset):
         prompt = Prompt(with_incontext=self.with_incontext)
         answer = Answer(with_answer_details=self.with_answer_details)
 
-        ids = [x["id"] for x in data_list]
+        ids = [str(data["id"]) for data in data_list]
+        years = [str(data["year"]) for data in data_list]
         instructions = [prompt.get(data) for data in data_list]
         tokenized_instructions = self.tokenizer(instructions, add_special_tokens=False)
         outputs = [answer.get(data) for data in data_list]
@@ -91,6 +92,7 @@ class AcademicDataset(Dataset):
                 processed_data.append(
                     {
                         "id": ids[i],
+                        "year": years[i],
                         "input_ids": processed_data_input_ids,
                         "attention_mask": [1] * len(processed_data_input_ids),
                         "prompt": instructions[i],

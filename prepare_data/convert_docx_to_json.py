@@ -47,11 +47,13 @@ if __name__ == "__main__":
     total_num = 72
 
     for f in file_list:
-        print(f"Processing file: {f}")
         file_lines = [paragraph.text for paragraph in Document(f).paragraphs]
+        year = re.search(r"^\d+", os.path.basename(f)).group(0)
+        if year == "99":
+            continue
+
+        print(f"Processing file: {f}")
         answer_details_dict = extract_answer_details(file_lines, total_num)
         # pprint(answer_details_dict)
-
-        year = re.search(r"^\d+", os.path.basename(f)).group(0)
         save_path = os.path.join(args.output_folder, str(year), "explanation.json")
         write_json(answer_details_dict, save_path)

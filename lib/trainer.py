@@ -1,6 +1,5 @@
 import os
 import torch
-
 from tqdm import tqdm
 
 from constants import CHECKPOINT_DIR
@@ -25,7 +24,7 @@ class Trainer:
         *arg,
         **kwarg,
         ):
-        
+
         self.tokenizer = tokenizer
         self.model = model
         self.device = device
@@ -53,15 +52,6 @@ class Trainer:
         return loss
 
     def valid_step(self, batch_data, index):
-        # pred_logit = self.model(
-        #     input_ids=batch_data["input_ids"],
-        #     attention_mask=batch_data["attention_mask"],
-        # ).logits
-        # ppl = self.eval_func(
-        #     pred_logits=pred_logit,
-        #     labels=batch_data["input_ids"],
-        #     output_masks=batch_data["output_mask"],
-        # )
         generated_tokens = self.model.generate(
             input_ids=batch_data["input_ids"],
             attention_mask=batch_data["attention_mask"],
@@ -71,7 +61,6 @@ class Trainer:
         generations = generations.replace(batch_data["prompt"][0], "").strip()
         correct = int(correcter(generations, batch_data['answer'][0], batch_data['answer_description'][0]))
 
-        # self.tracker.update(f"valid/ppl", ppl, pred_logit.shape[0])
         self.tracker.update(f"valid/acc", correct, 1)
         return
 
@@ -119,6 +108,7 @@ class Trainer:
 
     def fit(self, epoch):
         self.model.to(self.device)
+        self.valid_one_epoch()
         for self.cur_ep in range(1, epoch+1):
             self.train_one_epoch()
             self.valid_one_epoch()
