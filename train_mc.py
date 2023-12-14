@@ -62,6 +62,8 @@ def parse_arguments() -> Namespace:
                         help="Option of train from scratch")
     parser.add_argument("--bf16", action="store_true",
                         help="Option of using bf16")
+    parser.add_argument("--only_test", action="store_true",
+                        help="Option of do only testing")
 
     return parser.parse_args()
 
@@ -154,5 +156,9 @@ if __name__ == "__main__":
         logger=wandb,
         bf16=args.bf16,
     )
-    trainer.fit(epoch=args.epoch)
+
+    if args.only_test:
+        trainer.valid_one_epoch()
+    else:
+        trainer.fit(epoch=args.epoch)
     wandb.finish()
