@@ -49,17 +49,28 @@ def process_directory(directory):
 
     transformed_data = []
     for data in data_list:
+        if "image" in data.get("question"):
+            continue
+        if "table" in data.get("question"):
+            continue
+        if "image" in data.get("A"):
+            continue
+        if "table" in data.get("A"):
+            continue
+        if data.get("E"):
+            logging.info("Ignore questions with 5 options (ABCDE)")
+            continue
         if data.get("type") == "multi":
             continue
         if data.get("answer") == "無答案":
             continue
         if len(data.get("answer", "")) > 1:
             continue
-        if data.get("E"):
-            logging.info("Ignore questions with 5 options (ABCDE)")
-            continue
 
         if data["id"] in question_groups_map:
+            if "image" in question_groups_map[data['id']]:
+                continue
+
             data['question'] = (
                 question_groups_map[data['id']] +
                 " " +
