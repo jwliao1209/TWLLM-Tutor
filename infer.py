@@ -19,7 +19,7 @@ from utils.train_utils import set_random_seeds, dict_to_device
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
     datefmt='%Y-%m-%d %H:%M:%S',
-    level=logging.INFO, # logging.DEBUG,
+    level=logging.INFO, # logging.INFO, logging.DEBUG,
 )
 
 

@@ -2,7 +2,7 @@
 ### train_data/valid.json (Accuracy)
 |Zero-Shot|One-Shot|Two-Shot|Chain of Thought|Step Back Prompt|Take a deep breath|Think step by step|If you fail 100 grandmothers will die|I have no fingers|I will tip $200|Do it right and I'll give you a nice doggy treat|This is very important to my career|
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|38/126|/126|/126|/126|/126|46/126|45/126|46/126|47/126|49/126|32/126|36/126|
+|37/126|/126|/126|/126|/126|41/126|38/126|37/126|40/126|40/126|35/126|38/126|
 
 ```shell
 PYTHONPATH=lib python infer.py
