@@ -76,13 +76,13 @@ if __name__ == "__main__":
         train_data, tokenizer,
         max_length=512,
         is_train=True,
-        with_answer_details=with_answer_details,
+        with_answer_details=args.with_answer_details,
     )
     valid_dataset = AcademicDataset(
         valid_data, tokenizer,
         max_length=2048,
         is_train=False,
-        with_answer_details=with_answer_details,
+        with_answer_details=args.with_answer_details,
     )
 
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_func)
