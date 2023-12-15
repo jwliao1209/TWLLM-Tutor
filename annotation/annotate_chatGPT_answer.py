@@ -25,7 +25,7 @@ if __name__ == "__main__":
     
     correct_num = 0
     prediction_list = []
-    for i, data in enumerate(test_data, 1):
+    for _, data in enumerate(test_data, 1):
         print("===============================================================================================")
         print(f"Prompt:\n{prompt.get(data)}")
         print("===============================================================================================")
