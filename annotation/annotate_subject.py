@@ -1,9 +1,8 @@
 from pprint import pprint
 from argparse import Namespace, ArgumentParser
-from collections import OrderedDict
 
 from dataset import Prompt
-from metric.accuracy import correcter
+from constants import GEOGRAPHY, HISTORY, CIVICS
 from utils.data_utils import read_json, write_json
 
 
@@ -36,13 +35,13 @@ if __name__ == "__main__":
             case "0":
                 pass
             case "1":
-                data["subject"] = "geography"
+                data["subject"] = GEOGRAPHY
             case "2":
-                data["subject"] = "history"
+                data["subject"] = HISTORY
             case "3":
-                data["subject"] = "civics"
+                data["subject"] = CIVICS
             case _:
                 raise TypeError("not a point we support")
 
-        print(test_data[i])
+        pprint(test_data[i])
         write_json(test_data, args.output_path)

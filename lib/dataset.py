@@ -111,6 +111,54 @@ class AcademicDataset(Dataset):
         return self.data_list[index]
 
 
+class LLMMCDataset(Dataset):
+    def __init__(
+        self,
+        data_list,
+        tokenizer,
+        max_length=1024,
+    ) -> None:
+
+        self.tokenizer = tokenizer
+        self.max_length = max_length
+        self.data_list = self.transform(data_list)
+
+    def transform(self, data_list):
+        ABCD_MAP = {
+            "A": 0,
+            "B": 1,
+            "C": 2,
+            "D": 3,
+        }
+        processed_data = []
+        for data in data_list:
+            question = f"{data['question']} \nA.{data['A']} \nB.{data['B']} \nC.{data['C']} \nD.{data['D']}".replace(" ", "")
+            tokenized_question = self.tokenizer(question,
+                                                add_special_tokens=False,
+                                                truncation=True,
+                                                padding="max_length",
+                                                max_length=self.max_length)
+            processed_data.append(
+                {
+                    "id": data["id"],
+                    "year": data["year"],
+                    "input_ids": tokenized_question["input_ids"],
+                    "attention_mask": tokenized_question["attention_mask"],
+                    "labels": ABCD_MAP[data["answer"]],
+                    "answer": data["answer"],
+                    "answer_description": data[data["answer"]],
+                    "answer_details": data["answer_details"],
+                }
+            )
+        return processed_data
+
+    def __len__(self):
+        return len(self.data_list)
+
+    def __getitem__(self, index):
+        return self.data_list[index]
+
+
 def collate_func(data: list) -> dict:
     # convert list of dict to dict of list
     data_list_dict = {k: [dic[k] for dic in data] for k in data[0]}

@@ -46,4 +46,11 @@ VALID_FOLDERS = [
 CHECKPOINT_DIR = "checkpoint"
 os.makedirs(CHECKPOINT_DIR, exist_ok=True)
 
+
+GEOGRAPHY = "geography"
+HISTORY = "history"
+CIVICS = "civics"
+
+GEOGRAPHY_KEY_WORDS = []
+HISTORY_KEY_WORDS = []
 CIVICS_KEY_WORDS = ["公民", "法律", "法令", "法院", "政治人物", "跨國企業"]
