@@ -55,6 +55,8 @@ def parse_arguments() -> Namespace:
     parser.add_argument("--device_id", type=int,
                         default=0,
                         help="device id")
+    parser.add_argument("--with_answer_details", action="store_true",
+                        help="Option of answer details")
     return parser.parse_args()
 
 
@@ -70,8 +72,18 @@ if __name__ == "__main__":
     train_data = read_json(args.train_data_path)
     valid_data = read_json(args.valid_data_path)
 
-    train_dataset = AcademicDataset(train_data, tokenizer, max_length=512, is_train=True)
-    valid_dataset = AcademicDataset(valid_data, tokenizer, max_length=2048, is_train=False)
+    train_dataset = AcademicDataset(
+        train_data, tokenizer,
+        max_length=512,
+        is_train=True,
+        with_answer_details=with_answer_details,
+    )
+    valid_dataset = AcademicDataset(
+        valid_data, tokenizer,
+        max_length=2048,
+        is_train=False,
+        with_answer_details=with_answer_details,
+    )
 
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_func)
     valid_loader = DataLoader(valid_dataset, batch_size=1, shuffle=False, collate_fn=collate_func)
@@ -122,6 +134,7 @@ if __name__ == "__main__":
             "weight_decay": args.weight_decay,
             "warm_up_step": args.warm_up_step,
             "lora_rank": args.lora_rank,
+            "with_answer_details": args.with_answer_details,
         }
     )
     wandb.watch(model, log="all")

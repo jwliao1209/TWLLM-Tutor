@@ -61,7 +61,7 @@ class AcademicDataset(Dataset):
         answer = Answer(with_answer_details=self.with_answer_details)
 
         ids = [str(data["id"]) for data in data_list]
-        years = [str(data["year"]) for data in data_list]
+        years = [str(data.get("year", 0)) for data in data_list]
         instructions = [prompt.get(data) for data in data_list]
         tokenized_instructions = self.tokenizer(instructions, add_special_tokens=False)
         outputs = [answer.get(data) for data in data_list]
@@ -141,7 +141,7 @@ class LLMMCDataset(Dataset):
             processed_data.append(
                 {
                     "id": data["id"],
-                    "year": data["year"],
+                    "year": str(data.get("year", 0)),
                     "input_ids": tokenized_question["input_ids"],
                     "attention_mask": tokenized_question["attention_mask"],
                     "labels": ABCD_MAP[data["answer"]],

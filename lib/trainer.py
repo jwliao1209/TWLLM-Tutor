@@ -72,7 +72,7 @@ class Trainer:
 
     def train_one_epoch(self):
         self.model.train()
-        self.progress_bar = tqdm(self.train_loader, desc=f"Training {self.cur_ep}")
+        self.progress_bar = tqdm(self.train_loader, desc=f"Training {self.cur_ep}", total=int(4000/16))
         self.tracker.reset(keys=["train/loss"])
 
         for step, batch_data in enumerate(self.progress_bar, start=1):
@@ -203,7 +203,7 @@ class MCTrainer:
     @torch.no_grad()
     def valid_one_epoch(self):
         self.model.eval()
-        self.progress_bar = tqdm(self.valid_loader, desc=f"Validation {self.cur_ep}")
+        self.progress_bar = tqdm(self.valid_loader, desc=f"Validation {self.cur_ep}", total=int(4000/16))
         self.tracker.reset(keys=["valid/acc"])
 
         for step, batch_data in enumerate(self.progress_bar, start=1):
