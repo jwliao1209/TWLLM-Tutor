@@ -436,6 +436,10 @@ if __name__ == "__main__":
     else:
         processed_datasets["train"] = concatenate_datasets([
             processed_datasets["train_data_mc"],
+            processed_datasets["train_data_mc"],
+            processed_datasets["train_data_mc"],
+            processed_datasets["train_data_mc"],
+            processed_datasets["train_data_mc"],
             processed_datasets["train_database_mc"]
         ])
 
@@ -470,7 +474,8 @@ if __name__ == "__main__":
             config=model_config,
         )
         model: BertForMultipleChoice = model
-        state_dict = model.state_dict()
+        torch.save(model.state_dict(), "tmp.pth")
+        state_dict = torch.load("tmp.pth")
         model = VisibleBertForMultipleChoice(model.config).to(device)
         try:
             model.load_state_dict(state_dict)
