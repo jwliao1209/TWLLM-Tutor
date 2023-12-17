@@ -1,11 +1,11 @@
 import os
-import torch
-from tqdm import tqdm
 
+import torch
 from constants import CHECKPOINT_DIR
-from tracker import MetricTracker
+from metric.accuracy import correcter, get_correct_num
 from metric.perplexity import Perplexity
-from metric.accuracy import get_correct_num, correcter
+from tqdm import tqdm
+from tracker import MetricTracker
 from utils.train_utils import dict_to_device
 from utils.data_utils import write_json
 
@@ -24,7 +24,7 @@ class Trainer:
         logger=None,
         *arg,
         **kwarg,
-        ):
+    ):
 
         self.tokenizer = tokenizer
         self.model = model
@@ -71,7 +71,7 @@ class Trainer:
             "answer": batch_data['answer'][0],
             "answer_details": batch_data['answer_description'][0],
             "is_correct": is_correct,
-        } 
+        }
 
     def log(self, record):
         # self.progress_bar.set_postfix(record)
@@ -125,7 +125,7 @@ class Trainer:
         return
 
     def fit(self, epoch):
-        self.model.to(self.device)
+        # self.model = self.model.to(self.device)
         self.cur_ep = 0
         self.valid_one_epoch()
         for self.cur_ep in range(1, epoch+1):
@@ -133,10 +133,10 @@ class Trainer:
             self.valid_one_epoch()
             self.model.save_pretrained(
                 os.path.join(
-                CHECKPOINT_DIR,
-                f"epoch={self.cur_ep}_acc={self.tracker.result().get('valid/acc', 0)}"
+                    CHECKPOINT_DIR,
+                    f"epoch={self.cur_ep}_acc={self.tracker.result().get('valid/acc', 0)}"
+                )
             )
-        )
         return
 
 
@@ -154,7 +154,7 @@ class MCTrainer:
         logger=None,
         *arg,
         **kwarg,
-        ):
+    ):
 
         self.tokenizer = tokenizer
         self.model = model
@@ -242,8 +242,8 @@ class MCTrainer:
             self.valid_one_epoch()
             self.model.save_pretrained(
                 os.path.join(
-                CHECKPOINT_DIR,
-                f"epoch={self.cur_ep}_acc={self.tracker.result().get('valid/acc', 0)}"
+                    CHECKPOINT_DIR,
+                    f"epoch={self.cur_ep}_acc={self.tracker.result().get('valid/acc', 0)}"
+                )
             )
-        )
         return

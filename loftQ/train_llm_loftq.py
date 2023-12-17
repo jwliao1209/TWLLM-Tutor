@@ -4,7 +4,7 @@ from argparse import ArgumentParser, Namespace
 import torch
 from dataset import AcademicDataset, collate_func
 from optimization.optimizer import get_optimizer
-from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+from peft import PeftModel
 from torch.utils.data import DataLoader
 from trainer import Trainer
 from transformers import AutoModelForCausalLM, AutoTokenizer, get_scheduler
@@ -59,6 +59,10 @@ def parse_arguments() -> Namespace:
                         help="device id")
     parser.add_argument("--with_answer_details", action="store_true",
                         help="Option of answer details")
+
+    parser.add_argument('--int_bit', type=int, default=4)
+    parser.add_argument('--quant_embedding', action='store_true')
+
     return parser.parse_args()
 
 
@@ -67,12 +71,14 @@ if __name__ == "__main__":
     set_random_seeds()
 
     args = parse_arguments()
-
-    # Prepare dataset
-    tokenizer = AutoTokenizer.from_pretrained(args.base_model_path, use_fast=False)
-
     train_data = read_json(args.train_data_path)
     valid_data = read_json(args.valid_data_path)
+
+    # Prepare dataset
+    tokenizer = AutoTokenizer.from_pretrained(
+        args.base_model_path,
+        use_fast=False,
+    )
 
     train_dataset = AcademicDataset(
         train_data, tokenizer,
@@ -87,27 +93,28 @@ if __name__ == "__main__":
         with_answer_details=args.with_answer_details,
     )
 
-    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_func)
+    train_loader = DataLoader(train_dataset, num_workers=4, batch_size=args.batch_size,
+                              shuffle=True, collate_fn=collate_func)
     valid_loader = DataLoader(valid_dataset, batch_size=1, shuffle=False, collate_fn=collate_func)
 
     # Prepare model
     bnb_config = get_bnb_config()
     device = torch.device(f"cuda:{args.device_id}" if torch.cuda.is_available() else "cpu")
+
     model = AutoModelForCausalLM.from_pretrained(
         args.base_model_path,
-        torch_dtype=torch.bfloat16,
+        low_cpu_mem_usage=True,
         quantization_config=bnb_config,
+    )
 
+    model = PeftModel.from_pretrained(
+        model,
+        args.base_model_path,
+        subfolder="loft_init",
+        is_trainable=True,
     )
-    peft_config = LoraConfig(
-        lora_alpha=16,
-        lora_dropout=0.1,
-        r=args.lora_rank,
-        bias="none",
-        task_type="CAUSAL_LM",
-    )
-    model = prepare_model_for_kbit_training(model)
-    model = get_peft_model(model, peft_config)
+    model.print_trainable_parameters()
+    print(model)
 
     # Prepared optimizer and learning rate scheduler
     optimizer = get_optimizer(
@@ -129,6 +136,7 @@ if __name__ == "__main__":
     wandb.init(
         project="adl_final_project",
         name="experiment",
+        group="loftq",
         config={
             "tokenizer": args.base_model_path,
             "model": args.base_model_path,

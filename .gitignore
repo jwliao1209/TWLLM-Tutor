@@ -9,3 +9,4 @@ predictions
 wandb
 *.pyc
 tmp.py
+pretrain
