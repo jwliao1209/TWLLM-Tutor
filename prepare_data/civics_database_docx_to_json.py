@@ -26,9 +26,12 @@ def extract_options_from_question(question):
                 for next_opt in ['A', 'B', 'C', 'D']:
                     next_option_key = next_opt + ')'
                     if next_option_key in options_text and options_text.index(next_option_key) > option_index:
-                        next_option_index = min(next_option_index, options_text.index(next_option_key))
+                        next_option_index = min(
+                            next_option_index, options_text.index(next_option_key))
 
-                question[opt] = options_text[option_index + 2 : next_option_index].strip().rstrip('　(')
+                question[opt] = options_text[option_index +
+                                             2: next_option_index].strip().rstrip('　(')
+
 
 def parse_qa(document, subject):
     parsed_questions = []
@@ -63,7 +66,8 @@ def parse_qa(document, subject):
                 current_question["answer"] = text.split()[1]
             elif text.startswith("解析"):
                 current_question["answer_details"] = text.replace("解析 　", "")
-                parsed_questions.append(current_question)
+                if not ("附圖" in current_question["raw_question"] or "圖片" in current_question["raw_question"] or "下圖" in current_question["raw_question"] or "附表" in current_question["raw_question"] or "表格" in current_question["raw_question"] or "下表" in current_question["raw_question"]):
+                    parsed_questions.append(current_question)
             else:
                 if "raw_question" not in current_question or not current_question["raw_question"]:
                     current_question["raw_question"] = text
@@ -83,6 +87,7 @@ def parse_qa(document, subject):
     #     json.dump(parsed_questions, file, ensure_ascii=False, indent=4)
 
     return parsed_questions
+
 
 def save_json_file(json_file_path, data):
     # Save the data as JSON file
