@@ -81,12 +81,10 @@ class Trainer:
 
     def train_one_epoch(self):
         self.model.train()
-        self.progress_bar = tqdm(self.train_loader, desc=f"Training {self.cur_ep}")#, total=int(4000/16))
+        self.progress_bar = tqdm(self.train_loader, desc=f"Training {self.cur_ep}")
         self.tracker.reset(keys=["train/loss"])
 
         for step, batch_data in enumerate(self.progress_bar, start=1):
-            # if step >= int(4000/16):
-            #     break
             batch_data = dict_to_device(batch_data, self.device)
             loss = self.train_step(batch_data, step)
             self.progress_bar.set_postfix({**self.tracker.result(), "lr": self.lr_scheduler.get_last_lr()[0]})
@@ -197,7 +195,7 @@ class MCTrainer:
 
     def train_one_epoch(self):
         self.model.train()
-        self.progress_bar = tqdm(self.train_loader, desc=f"Training {self.cur_ep}", total=int(4000/16))
+        self.progress_bar = tqdm(self.train_loader, desc=f"Training {self.cur_ep}")
         self.tracker.reset(keys=["train/loss"])
 
         for step, batch_data in enumerate(self.progress_bar, start=1):
