@@ -18,4 +18,5 @@ CUDA_VISIBLE_DEVICES=0 PYTHONPATH=lib python train.py \
                                 --accum_grad_step 1 \
                                 --lr 2e-4 \
                                 --lora_rank 8 \
-                                --with_answer_details
+                                --with_answer_details \
+                                --optimizer lion

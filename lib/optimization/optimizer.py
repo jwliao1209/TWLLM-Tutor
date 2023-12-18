@@ -4,7 +4,7 @@ from optimization.lion import Lion
 
 def get_optimizer(
     model,
-    optimizer_name: str = "adamw",
+    optimizer_name: str,
     lr: float = 3e-5,
     weight_decay: float = 0,
     ) -> Optimizer:

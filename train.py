@@ -37,6 +37,9 @@ def parse_arguments() -> Namespace:
     parser.add_argument("--epoch", type=int,
                         default=1,
                         help="number of epochs")
+    parser.add_argument("--optimizer", type=str,
+                        default="adamw",
+                        help="optimizer")
     parser.add_argument("--lr", type=float,
                         default=2e-4,
                         help="learning rate")
@@ -108,7 +111,12 @@ if __name__ == "__main__":
     model = get_peft_model(model, peft_config)
 
     # Prepared optimizer and learning rate scheduler
-    optimizer = get_optimizer(model, lr=args.lr, weight_decay=args.weight_decay)
+    optimizer = get_optimizer(
+        model,
+        optimizer_name=args.optimizer,
+        lr=args.lr,
+        weight_decay=args.weight_decay
+    )
     num_update_steps_per_epoch = math.ceil(len(train_loader) / args.accum_grad_step)
     max_train_steps = args.epoch * num_update_steps_per_epoch
     lr_scheduler = get_scheduler(
@@ -128,7 +136,7 @@ if __name__ == "__main__":
             "epoch": args.epoch,
             "batch_size": args.batch_size,
             "accum_grad_step": args.accum_grad_step,
-            "optimizer": "adamw",
+            "optimizer": args.optimizer,
             "lr_scheduler": args.lr_scheduler,
             "lr": args.lr,
             "weight_decay": args.weight_decay,
