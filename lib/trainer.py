@@ -101,8 +101,12 @@ class Trainer:
         return
 
     @torch.no_grad()
-    def valid_one_epoch(self):
+    def valid_one_epoch(self, valid_loader=None):
         self.model.eval()
+
+        if valid_loader is None:
+            valid_loader = self.valid_loader
+
         self.progress_bar = tqdm(self.valid_loader, desc=f"Validation {self.cur_ep}")
         self.tracker.reset(keys=["valid/acc"])
 
