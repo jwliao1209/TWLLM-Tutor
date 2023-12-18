@@ -7,6 +7,7 @@ from tracker import MetricTracker
 from metric.perplexity import Perplexity
 from metric.accuracy import get_correct_num, correcter
 from utils.train_utils import dict_to_device
+from utils.data_utils import write_json
 
 
 class Trainer:
@@ -59,10 +60,18 @@ class Trainer:
         )
         generations = self.tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)[0]
         generations = generations.replace(batch_data["prompt"][0], "").strip()
-        correct = int(correcter(generations, batch_data['answer'][0], batch_data['answer_description'][0]))
+        is_correct = correcter(generations, batch_data['answer'][0], batch_data['answer_description'][0])
 
-        self.tracker.update(f"valid/acc", correct, 1)
-        return
+        self.tracker.update(f"valid/acc", int(is_correct), 1)
+        return {
+            "id": int(batch_data['id'][0]),
+            "year": batch_data['year'][0],
+            "prompt": batch_data['prompt'][0],
+            "generation": generations,
+            "answer": batch_data['answer'][0],
+            "answer_details": batch_data['answer_description'][0],
+            "is_correct": is_correct,
+        } 
 
     def log(self, record):
         # self.progress_bar.set_postfix(record)
@@ -72,10 +81,12 @@ class Trainer:
 
     def train_one_epoch(self):
         self.model.train()
-        self.progress_bar = tqdm(self.train_loader, desc=f"Training {self.cur_ep}", total=int(4000/16))
+        self.progress_bar = tqdm(self.train_loader, desc=f"Training {self.cur_ep}")#, total=int(4000/16))
         self.tracker.reset(keys=["train/loss"])
 
         for step, batch_data in enumerate(self.progress_bar, start=1):
+            # if step >= int(4000/16):
+            #     break
             batch_data = dict_to_device(batch_data, self.device)
             loss = self.train_step(batch_data, step)
             self.progress_bar.set_postfix({**self.tracker.result(), "lr": self.lr_scheduler.get_last_lr()[0]})
@@ -97,13 +108,18 @@ class Trainer:
         self.progress_bar = tqdm(self.valid_loader, desc=f"Validation {self.cur_ep}")
         self.tracker.reset(keys=["valid/acc"])
 
+        pred_list = []
         for step, batch_data in enumerate(self.progress_bar, start=1):
             batch_data = dict_to_device(batch_data, self.device)
             self.progress_bar.set_postfix(self.tracker.result())
-            self.valid_step(batch_data, step)
+            pred = self.valid_step(batch_data, step)
+            pred_list.append(pred)
 
         self.log({"epoch": self.cur_ep, **self.tracker.result()})
         self.progress_bar.close()
+
+        os.makedirs("predictions", exist_ok=True)
+        write_json(pred_list, os.path.join("predictions", f"lora_{self.cur_ep}.json"))
         return
 
     def fit(self, epoch):

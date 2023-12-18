@@ -10,7 +10,7 @@ from peft import LoraConfig, prepare_model_for_kbit_training, get_peft_model
 
 from configs import get_bnb_config
 from dataset import AcademicDataset, collate_func
-from optimizer import get_optimizer
+from optimization.optimizer import get_optimizer
 from trainer import Trainer
 from utils.train_utils import set_random_seeds
 from utils.data_utils import read_json

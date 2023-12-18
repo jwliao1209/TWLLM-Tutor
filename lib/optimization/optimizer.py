@@ -1,5 +1,5 @@
-import torch
-from torch.optim import Optimizer
+from torch.optim import Optimizer, AdamW
+from optimization.lion import Lion
 
 
 def get_optimizer(
@@ -20,4 +20,10 @@ def get_optimizer(
             "weight_decay": 0.0,
         },
     ]
-    return torch.optim.AdamW(optimizer_grouped_parames, lr=lr)
+    match optimizer_name:
+        case "adamw":
+            return AdamW(optimizer_grouped_parames, lr=lr)
+        case "lion":
+            return Lion(optimizer_grouped_parames, lr=lr)
+        case _:
+            raise 

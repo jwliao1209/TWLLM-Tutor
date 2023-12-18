@@ -7,6 +7,7 @@ def get_correct_num(y_pred: np.ndarray, y_true: np.ndarray) -> np.ndarray:
 
 
 def correcter(generation: str, answer: str, description: str) -> bool:
+    generation = re.sub(r"\s*原因：[\s\S]*", "", generation)
     generated_answer = re.findall(r'(?<![A-Za-z])[A-D](?![A-Za-z])', generation)
     if (not generated_answer) and description in generation:
         return True

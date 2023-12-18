@@ -29,6 +29,10 @@ if __name__ == "__main__":
         print(f"Question {i}:")
         print(f"Subject: {data['subject']}")
         print(data["question"])
+        print("A:", data["A"])
+        print("B:", data["B"])
+        print("C:", data["C"])
+        print("D:", data["D"])
         action = input("0: 維持 1: 地理 2: 歷史 3: 公民，請選擇題目類型: ")
 
         match action:

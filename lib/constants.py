@@ -33,11 +33,11 @@ TRAIN_FOLDERS = [
     "105",
     "106",
     "107",
-    "108",
-    "109",
 ]
 
 VALID_FOLDERS = [
+    "108",
+    "109",
     "110",
     "111",
     "112",
@@ -54,3 +54,12 @@ CIVICS = "civics"
 GEOGRAPHY_KEY_WORDS = []
 HISTORY_KEY_WORDS = []
 CIVICS_KEY_WORDS = ["公民", "法律", "法令", "法院", "政治人物", "跨國企業"]
+
+PROMPT_PREFIX_DICT = {
+    "breath": "Take a deep breath.",
+    "career": "This is very important to my career.",
+    "die": "If you fail 100 grandmothers will die.",
+    "no_fingers": "I have no fingers.",
+    "step_by_step": "Think step by step.",
+    "tips": "I will tip $200.",
+}
