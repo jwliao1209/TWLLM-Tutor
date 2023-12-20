@@ -60,6 +60,6 @@ PROMPT_PREFIX_DICT = {
     "career": "This is very important to my career.",
     "die": "If you fail 100 grandmothers will die.",
     "no_fingers": "I have no fingers.",
-    "step_by_step": "Think step by step.",
+    "step_by_step": "Let's think step by step.",
     "tips": "I will tip $200.",
 }

@@ -36,6 +36,9 @@ def parse_arguments() -> Namespace:
                         type=str,
                         default="",
                         help="Path to the saved PEFT checkpoint.")
+    parser.add_argument("--prompt_prefix", type=str,
+                        default="", choices=["breath", "career", "die", "no_fingers", "step_by_step", "tips"],
+                        help="Prompt prefix.")
     parser.add_argument("--test_data_path", type=str,
                         default="data/train_data/valid.json",
                         help="Path to test data.")
@@ -53,8 +56,9 @@ if __name__ == "__main__":
 
     tokenizer = AutoTokenizer.from_pretrained(args.base_model_path)
     test_data = read_json(args.test_data_path)
+    prompt_prefix=args.prompt_prefix
     test_dataset = AcademicDataset(
-        test_data, tokenizer,
+        test_data, tokenizer, prompt_prefix,
         max_length=2048,
         is_train=False,
         with_answer_details=True,

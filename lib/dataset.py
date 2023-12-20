@@ -36,6 +36,7 @@ class AcademicDataset(Dataset):
         self,
         data_list,
         tokenizer,
+        prompt_prefix,
         max_length=512,
         is_train=True,
         with_incontext=False,
@@ -46,6 +47,7 @@ class AcademicDataset(Dataset):
         self.max_length = max_length
         self.is_train = is_train
         self.with_incontext = with_incontext
+        self.prompt_prefix=prompt_prefix
         self.with_answer_details = with_answer_details
         self.data_list = self.transform(data_list)
 
@@ -59,7 +61,7 @@ class AcademicDataset(Dataset):
 
     # TODO: refactor this function
     def transform(self, data_list):
-        prompt = Prompt(with_incontext=self.with_incontext)
+        prompt = Prompt(prompt_prefix=self.prompt_prefix, with_incontext=self.with_incontext)
         answer = Answer(with_answer_details=self.with_answer_details)
 
         ids = [str(data["id"]) for data in data_list]

@@ -1,8 +1,8 @@
 ## Inference
 ### train_data/valid.json (Accuracy)
-|Zero-Shot|One-Shot|Two-Shot|Chain of Thought|Step Back Prompt|Take a deep breath|Think step by step|If you fail 100 grandmothers will die|I have no fingers|I will tip $200|Do it right and I'll give you a nice doggy treat|This is very important to my career|
-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|37/126|/126|/126|/126|/126|41/126|38/126|37/126|40/126|40/126|35/126|38/126|
+|Zero-Shot|One-Shot|Two-Shot|Step Back Prompt|Take a deep breath|Let's think step by step (Zero-Shot CoT)|If you fail 100 grandmothers will die|I have no fingers|I will tip $200|Do it right and I'll give you a nice doggy treat|This is very important to my career|
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|41/126|/126|/126|/126|35/126|38/126|37/126|40/126|40/126|35/126|38/126|
 
 ```shell
 PYTHONPATH=lib python infer.py
