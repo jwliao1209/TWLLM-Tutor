@@ -6,8 +6,8 @@ from metric.accuracy import correcter, get_correct_num
 from metric.perplexity import Perplexity
 from tqdm import tqdm
 from tracker import MetricTracker
-from utils.train_utils import dict_to_device
 from utils.data_utils import write_json
+from utils.train_utils import dict_to_device
 
 
 class Trainer:
@@ -22,7 +22,7 @@ class Trainer:
         accum_grad_step,
         lr_scheduler,
         logger=None,
-        *arg,
+        *args,
         **kwarg,
     ):
 
@@ -41,11 +41,12 @@ class Trainer:
         self.logger = logger
 
     def train_step(self, batch_data, index):
-        outputs = self.model(
-            input_ids=batch_data["input_ids"],
-            attention_mask=batch_data["attention_mask"],
-            labels=batch_data["labels"],
-        )
+        with torch.cuda.amp.autocast(dtype=torch.bfloat16 if self.device.type == "cuda" else None):
+            outputs = self.model(
+                input_ids=batch_data["input_ids"],
+                attention_mask=batch_data["attention_mask"],
+                labels=batch_data["labels"],
+            )
         loss = outputs.loss
         preds = outputs.logits.argmax(dim=-1)
         n = preds.shape[0]
@@ -53,11 +54,12 @@ class Trainer:
         return loss
 
     def valid_step(self, batch_data, index):
-        generated_tokens = self.model.generate(
-            input_ids=batch_data["input_ids"],
-            attention_mask=batch_data["attention_mask"],
-            max_new_tokens=512,
-        )
+        with torch.cuda.amp.autocast(dtype=torch.bfloat16 if self.device.type == "cuda" else None):
+            generated_tokens = self.model.generate(
+                input_ids=batch_data["input_ids"],
+                attention_mask=batch_data["attention_mask"],
+                max_new_tokens=128,
+            )
         generations = self.tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)[0]
         generations = generations.replace(batch_data["prompt"][0], "").strip()
         is_correct = correcter(generations, batch_data['answer'][0], batch_data['answer_description'][0])
@@ -92,7 +94,7 @@ class Trainer:
 
             (loss / self.accum_grad_step).backward()
             if step % self.accum_grad_step == 0:
-                torch.nn.utils.clip_grad_norm_(self.model.parameters(), 10)
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1)
                 self.optimizer.step()
                 self.optimizer.zero_grad()
                 self.lr_scheduler.step()
@@ -127,7 +129,7 @@ class Trainer:
     def fit(self, epoch):
         # self.model = self.model.to(self.device)
         self.cur_ep = 0
-        self.valid_one_epoch()
+        # self.valid_one_epoch()
         for self.cur_ep in range(1, epoch+1):
             self.train_one_epoch()
             self.valid_one_epoch()
@@ -171,11 +173,12 @@ class MCTrainer:
         self.logger = logger
 
     def train_step(self, batch_data, index):
-        outputs = self.model(
-            input_ids=batch_data["input_ids"],
-            attention_mask=batch_data["attention_mask"],
-            labels=batch_data["labels"],
-        )
+        with torch.cuda.amp.autocast(dtype=torch.bfloat16 if self.device.type == "cuda" else None):
+            outputs = self.model(
+                input_ids=batch_data["input_ids"],
+                attention_mask=batch_data["attention_mask"],
+                labels=batch_data["labels"],
+            )
         loss = outputs.loss
         preds = outputs.logits.argmax(dim=-1)
         n = preds.shape[0]
@@ -183,10 +186,12 @@ class MCTrainer:
         return loss
 
     def valid_step(self, batch_data, index):
-        preds = self.model(
-            input_ids=batch_data["input_ids"],
-            attention_mask=batch_data["attention_mask"],
-        ).logits.argmax(dim=-1)
+        with torch.cuda.amp.autocast(dtype=torch.bfloat16 if self.device.type == "cuda" else None):
+            preds = self.model(
+                input_ids=batch_data["input_ids"],
+                attention_mask=batch_data["attention_mask"],
+            )
+        preds = preds.logits.argmax(dim=-1)
         correct_num = get_correct_num(preds, batch_data["labels"])
         self.tracker.update(f"valid/acc", correct_num, preds.shape[0])
         return

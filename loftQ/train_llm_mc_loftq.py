@@ -114,7 +114,8 @@ if __name__ == "__main__":
     # Prepared logger
     wandb.init(
         project="adl_final_project",
-        name="twllm_mc_loftq",
+        name="twllm_mc_loftQ",
+        group="twllm_mc_loftQ",
         config={
             "tokenizer": args.base_model_path,
             "model": args.base_model_path,
