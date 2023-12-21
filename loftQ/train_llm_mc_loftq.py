@@ -2,14 +2,14 @@ import math
 from argparse import ArgumentParser, Namespace
 
 import torch
-from dataset import LLMMCDataset, collate_func
+from dataset import LLMMCDataset
 from optimization.optimizer import get_optimizer
 from peft import PeftModel
 from torch.utils.data import DataLoader
 from trainer import MCTrainer
 from transformers import (AutoModelForSequenceClassification, AutoTokenizer,
                           get_scheduler)
-from utils.data_utils import read_json
+from utils.data_utils import read_json, collate_func
 from utils.train_utils import set_random_seeds
 
 import wandb

@@ -2,13 +2,13 @@ import math
 from argparse import ArgumentParser, Namespace
 
 import torch
-from dataset import AcademicDataset, collate_func
+from dataset import AcademicDataset
 from optimization.optimizer import get_optimizer
 from peft import PeftModel
 from torch.utils.data import DataLoader
 from trainer import Trainer
 from transformers import AutoModelForCausalLM, AutoTokenizer, get_scheduler
-from utils.data_utils import read_json
+from utils.data_utils import read_json, collate_func
 from utils.train_utils import set_random_seeds
 
 import wandb
