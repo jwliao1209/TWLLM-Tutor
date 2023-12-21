@@ -4,6 +4,8 @@ lib/utils/__pycache__
 model_weight
 checkpoint
 checkpoint_old
+checkpoint_old_1
+checkpoint_old_2
 wandb
 *.pyc
 tmp.py
