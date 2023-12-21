@@ -6,7 +6,7 @@ from dataset import AcademicDataset
 from optimization.optimizer import get_optimizer
 from peft import PeftModel
 from torch.utils.data import DataLoader
-from trainer import Trainer
+from trainer import InstructionTuningTrainer
 from transformers import AutoModelForCausalLM, AutoTokenizer, get_scheduler
 from utils.data_utils import read_json, collate_func
 from utils.train_utils import set_random_seeds
@@ -155,7 +155,7 @@ if __name__ == "__main__":
     wandb.watch(model, log="all")
 
     # Start training
-    trainer = Trainer(
+    trainer = InstructionTuningTrainer(
         tokenizer=tokenizer,
         model=model,
         device=device,
