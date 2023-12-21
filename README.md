@@ -1,4 +1,5 @@
-# Taiwan LLM Tutor: Revolutionizing Secondary Education with AI Tutoring in Taiwan
+# TWLLM Tutor: Revolutionizing Taiwanese Secondary Education with Large Language Model
+
 
 ## Set the Environment
 - Virtual Environment
@@ -14,7 +15,11 @@ source activate adl_final
 pip install -r configs/requirements.txt
 ```
 
+
 ## Prepare Training Dataset
+The data is store in `train_data` with `{train, valid}_{GSAT, QB}_{subject with years}_{number of question}`
+
+
 ```
 PYTHONPATH=lib python prepare_data/convert_to_train_format.py
 ```
@@ -32,6 +37,16 @@ CUDA_VISIBLE_DEVICES=0 PYTHONPATH=lib python train.py \
 ```
 PYTHONPATH=lib python infer.py
 ```
+
+
+## Result
+|Zero-Shot|One-Shot|Two-Shot|Chain of Thought|Step Back Prompt|Take a deep breath|Think step by step|If you fail 100 grandmothers will die|I have no fingers|I will tip $200|Do it right and I'll give you a nice doggy treat|This is very important to my career|
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|37/126|/126|/126|/126|/126|41/126|38/126|37/126|40/126|40/126|35/126|38/126|
+
+
+## OS and Hardware
+I implemented the code on an environment running Ubuntu 22.04.3, utilizing a 12th Gen Intel(R) Core(TM) i7-12700 CPU, along with a single NVIDIA GeForce RTX 4090 GPU equipped with 24 GB VRAM.
 
 
 ## Reference
