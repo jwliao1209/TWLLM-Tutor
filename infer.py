@@ -10,9 +10,9 @@ from peft import PeftModel
 
 from constants import FEW_SHOT, LORA_FINE_TUNE
 from configs import get_bnb_config
-from dataset import AcademicDataset, collate_func
+from dataset import AcademicDataset
 from metric.accuracy import correcter
-from utils.data_utils import read_json, write_json
+from utils.data_utils import read_json, write_json, collate_func
 from utils.train_utils import set_random_seeds, dict_to_device
 
 
