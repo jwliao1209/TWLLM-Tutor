@@ -12,5 +12,8 @@ sentencepiece==0.1.99
 protobuf==4.25.1
 wandb==0.15.12
 
+# LoftQ
+git+https://github.com/huggingface/peft.git
+
 # others
 gdown==4.7.1
