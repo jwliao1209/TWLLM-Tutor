@@ -14,7 +14,7 @@ from lib_mc.constants import MC_DATA_FILE
 from lib_mc.preprocess import preprocess_mc_func
 from lib_mc.trainer import MCTrainer
 
-from optimizer import get_optimizer
+from optimization.optimizer import get_optimizer
 from utils.train_utils import set_random_seeds
 
 
