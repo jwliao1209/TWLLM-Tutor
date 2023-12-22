@@ -1,4 +1,4 @@
-from typing import Tuple, Optional, Callable
+from typing import Callable, Optional, Tuple
 
 import torch
 from torch.optim.optimizer import Optimizer
@@ -15,12 +15,12 @@ def update_fn(p, grad, exp_avg, lr, wd, beta1, beta2):
 
     # weight update
 
-    update = exp_avg.clone().mul_(beta1).add(grad, alpha = 1 - beta1).sign_()
-    p.add_(update, alpha = -lr)
+    update = exp_avg.clone().mul_(beta1).add(grad, alpha=1 - beta1).sign_()
+    p.add_(update, alpha=-lr)
 
     # decay the momentum running average coefficient
 
-    exp_avg.mul_(beta2).add_(grad, alpha = 1 - beta2)
+    exp_avg.mul_(beta2).add_(grad, alpha=1 - beta2)
     return
 
 
@@ -37,9 +37,9 @@ class Lion(Optimizer):
         assert all([0. <= beta <= 1. for beta in betas])
 
         defaults = dict(
-            lr = lr,
-            betas = betas,
-            weight_decay = weight_decay
+            lr=lr,
+            betas=betas,
+            weight_decay=weight_decay
         )
 
         super().__init__(params, defaults)
@@ -64,7 +64,8 @@ class Lion(Optimizer):
         for group in self.param_groups:
             for p in filter(lambda p: exists(p.grad), group['params']):
 
-                grad, lr, wd, beta1, beta2, state = p.grad, group['lr'], group['weight_decay'], *group['betas'], self.state[p]
+                grad, lr, wd, beta1, beta2, state = p.grad, group['lr'], group['weight_decay'], * \
+                    group['betas'], self.state[p]
 
                 # init state - exponential moving average of gradient values
 

@@ -1,11 +1,12 @@
 import os
+
 import torch
 from tqdm import tqdm
-from lib_mc.constants import CHECKPOINT_DIR
-from lib_mc.tracker import MetricTracker
-from metric.accuracy import get_correct_num
 
-from utils.train_utils import dict_to_device
+from ..metric.accuracy import get_correct_num
+from ..utils.train_utils import dict_to_device
+from .constants import CHECKPOINT_DIR
+from .tracker import MetricTracker
 
 
 class BaseTrainer:
@@ -21,7 +22,7 @@ class BaseTrainer:
         logger=None,
         *arg,
         **kwarg,
-        ):
+    ):
 
         self.model = model
         self.device = device
@@ -77,7 +78,7 @@ class BaseTrainer:
             batch_data = dict_to_device(batch_data, self.device)
             self.valid_step(batch_data, step)
             self.progress_bar.set_postfix(self.tracker.result())
-        
+
         self.log({"epoch": self.cur_ep, **self.tracker.result()})
         self.progress_bar.close()
         self.model.save_pretrained(
@@ -109,7 +110,7 @@ class MCTrainer(BaseTrainer):
         logger=None,
         *arg,
         **kwarg,
-        ):
+    ):
         super().__init__(
             model,
             device,
@@ -138,4 +139,3 @@ class MCTrainer(BaseTrainer):
 
     def valid_step(self, batch_data, index):
         return self.share_step(batch_data, index, "valid")
-

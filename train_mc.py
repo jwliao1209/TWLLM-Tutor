@@ -1,21 +1,20 @@
 import math
-import torch
-import wandb
-
-from argparse import Namespace, ArgumentParser
+from argparse import ArgumentParser, Namespace
 from functools import partial
+from pathlib import Path
+
+import torch
 from datasets import load_dataset
 from torch.utils.data import DataLoader
-from transformers import AutoTokenizer, default_data_collator
-from transformers import AutoConfig, AutoModelForMultipleChoice
-from transformers import get_scheduler
+from transformers import (AutoConfig, AutoModelForMultipleChoice,
+                          AutoTokenizer, default_data_collator, get_scheduler)
 
-from lib_mc.constants import MC_DATA_FILE
-from lib_mc.preprocess import preprocess_mc_func
-from lib_mc.trainer import MCTrainer
-
-from optimizer import get_optimizer
-from utils.train_utils import set_random_seeds
+import wandb
+from lib.lib_mc.constants import MC_DATA_FILE
+from lib.lib_mc.preprocess import preprocess_mc_func
+from lib.lib_mc.trainer import MCTrainer
+from lib.optimization.optimizer import get_optimizer
+from lib.utils.train_utils import set_random_seeds
 
 
 def parse_arguments() -> Namespace:
@@ -76,6 +75,7 @@ if __name__ == "__main__":
     )
     train_loader = DataLoader(
         processed_datasets["train"],
+        num_workers=2,
         batch_size=args.batch_size,
         collate_fn=default_data_collator,
         shuffle=True,
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     # Prepared model
     device = torch.device(f"cuda:{args.device_id}" if torch.cuda.is_available() else "cpu")
     model_config = AutoConfig.from_pretrained(args.model_name_or_path)
-    
+
     if args.train_from_scratch:
         model = AutoModelForMultipleChoice.from_config(model_config).to(device)
     else:
@@ -116,15 +116,14 @@ if __name__ == "__main__":
     # Prepared logger
     wandb.init(
         project="adl_hw1",
-        group="mc",
-        name="experiment_mc", 
+        group=f"BERT-MC-{Path(args.train_data_path).stem}-{Path(args.valid_data_path).stem}",
         config={
             "tokenizer": args.tokenizer_name,
             "model": args.model_name_or_path,
             "epochs": args.epoch,
             "batch_size": args.batch_size,
             "accum_grad_step": args.accum_grad_step,
-            "optimizer": "adamw",
+            "optimizer": args.optimizer,
             "lr_scheduler": args.lr_scheduler,
             "learning_rate": args.lr,
             "weight_decay": args.weight_decay,
