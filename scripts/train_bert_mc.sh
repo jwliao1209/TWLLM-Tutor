@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0 ipython -- train_llm_mc.py \
+CUDA_VISIBLE_DEVICES=0 ipython -- twllm_qlora/train_twllm_qlora_mc.py \
                                 --base_model_path kevinzyz/chinese-roberta-wwm-ext-finetuned-MC-hyper \
                                 --epoch 10 \
                                 --train_data_path data/train_data/train_QB_history_9000.json \

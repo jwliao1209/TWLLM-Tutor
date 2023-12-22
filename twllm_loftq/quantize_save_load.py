@@ -132,6 +132,7 @@ def quantize_and_save():
 
     if not Path(base_model_dir).exists() or not Path(lora_model_dir).exists():
         # Download weights and configure LoRA
+        print(f"Loading model and tokenizer from {args.base_model_path}")
         tokenizer = AutoTokenizer.from_pretrained(args.base_model_path, token=args.token, trust_remote_code=True)
 
         if args.task_type == "MC":
@@ -186,5 +187,6 @@ def quantize_and_save():
 
 
 if __name__ == "__main__":
+    print("Status: Quantizing and saving the model")
     base_dir, lora_dir = quantize_and_save()
     print(f"Base model saved to {base_dir}, LoraQ model saved to {lora_dir}")

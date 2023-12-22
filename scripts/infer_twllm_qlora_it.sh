@@ -1,4 +1,4 @@
-ipython -- infer.py \
+ipython -- twllm_qlora/infer_twllm_qlora_it.py \
             --method lora-fine-tune \
             --test_data_path data/train_data/valid_history_wo_108.json \
             --peft_path checkpoint_history/epoch=12_acc=0.5263157894736842 \

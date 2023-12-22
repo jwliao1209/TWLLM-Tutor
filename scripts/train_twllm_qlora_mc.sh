@@ -1,4 +1,4 @@
-CUDA_VISIBLE_DEVICES=0 ipython -- train_llm_it.py \
+CUDA_VISIBLE_DEVICES=0 ipython -- twllm_qlora/train_twllm_qlora_mc.py \
                                 --base_model_path model_weight/Taiwan-LLM-7B-v2.0-chat \
                                 --epoch 10 \
                                 --train_data_path data/train_data/train_QB_history_9000.json \
@@ -7,5 +7,4 @@ CUDA_VISIBLE_DEVICES=0 ipython -- train_llm_it.py \
                                 --accum_grad_step 1 \
                                 --lr 2e-4 \
                                 --lora_rank 8 \
-                                --with_answer_details \
                                 --optimizer lion
