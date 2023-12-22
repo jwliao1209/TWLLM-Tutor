@@ -5,7 +5,7 @@ model_weight
 checkpoint
 checkpoint_old
 checkpoint_history
-predictions
+prediction*
 wandb
 *.pyc
 tmp.py

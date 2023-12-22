@@ -1,5 +1,6 @@
-import torch
 from collections import OrderedDict
+
+import torch
 
 
 class MetricTracker:
@@ -20,6 +21,6 @@ class MetricTracker:
         self.record[key]["counts"] += num
         self.record[key]["avg"] = self.record[key]["total"] / self.record[key]["counts"]
         return
-    
+
     def result(self):
         return dict([(k, self.record[k]["avg"]) for k in self.keys])

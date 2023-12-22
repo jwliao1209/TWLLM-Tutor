@@ -1,18 +1,19 @@
 import math
 from argparse import ArgumentParser, Namespace
+from pathlib import Path
 
 import torch
-from dataset import AcademicDataset
-from optimization.optimizer import get_optimizer
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from torch.utils.data import DataLoader
-from trainer import InstructionTuningTrainer
 from transformers import AutoModelForCausalLM, AutoTokenizer, get_scheduler
-from utils.data_utils import read_json, collate_func
-from utils.train_utils import set_random_seeds
 
 import wandb
-from configs import get_bnb_config
+from lib.configs import get_bnb_config
+from lib.dataset import AcademicDataset
+from lib.optimization.optimizer import get_optimizer
+from lib.trainer import InstructionTuningTrainer
+from lib.utils.data_utils import collate_func, read_json
+from lib.utils.train_utils import set_random_seeds
 
 
 def parse_arguments() -> Namespace:
@@ -87,8 +88,19 @@ if __name__ == "__main__":
         with_answer_details=args.with_answer_details,
     )
 
-    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_func)
-    valid_loader = DataLoader(valid_dataset, batch_size=1, shuffle=False, collate_fn=collate_func)
+    train_loader = DataLoader(
+        train_dataset,
+        num_workers=2,
+        batch_size=args.batch_size,
+        shuffle=True,
+        collate_fn=collate_func,
+    )
+    valid_loader = DataLoader(
+        valid_dataset,
+        batch_size=1,
+        shuffle=False,
+        collate_fn=collate_func
+    )
 
     # Prepare model
     bnb_config = get_bnb_config()
@@ -128,7 +140,7 @@ if __name__ == "__main__":
     # Prepared logger
     wandb.init(
         project="adl_final_project",
-        name="experiment",
+        group=f"LLM-IT-{Path(args.train_data_path).stem}-{Path(args.valid_data_path).stem}",
         config={
             "tokenizer": args.base_model_path,
             "model": args.base_model_path,

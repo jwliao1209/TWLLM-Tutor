@@ -3,17 +3,21 @@ pdfplumber==0.10.3
 python-docx==1.1.0
 
 # training
-torch==2.1.0
+torch==2.1.2
 transformers==4.34.1
 bitsandbytes==0.41.1
-peft==0.6.0
+# peft==0.6.0
 scipy==1.11.3
 sentencepiece==0.1.99
 protobuf==4.25.1
 wandb==0.15.12
+datasets
 
 # LoftQ
 git+https://github.com/huggingface/peft.git
 
 # others
 gdown==4.7.1
+
+# for conveniently run python scripts
+ipython

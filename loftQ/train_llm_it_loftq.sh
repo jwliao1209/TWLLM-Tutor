@@ -1,6 +1,6 @@
-NBIT=2
-LORA_RANK=8
-TASK_TYPE=MC
+NBIT=4
+LORA_RANK=16
+TASK_TYPE=IT
 
 ipython --pdb -- loftQ/quantize_save_load.py \
 	--base_model_path model_weight/Taiwan-LLM-7B-v2.0-chat-${NBIT}bit-${LORA_RANK}rank-$TASK_TYPE \
@@ -9,7 +9,7 @@ ipython --pdb -- loftQ/quantize_save_load.py \
 	--lora_rank $LORA_RANK \
 	--task_type $TASK_TYPE
 
-ipython --pdb -- loftQ/train_llm_mc_loftq.py \
+ipython --pdb -- loftQ/train_llm_it_loftq.py \
 	--base_model_path model_weight/Taiwan-LLM-7B-v2.0-chat-${NBIT}bit-${LORA_RANK}rank-$TASK_TYPE \
 	--epoch 10 \
 	--train_data_path data/train_data/train_QB_history_9000.json \

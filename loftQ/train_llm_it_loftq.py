@@ -1,18 +1,19 @@
 import math
 from argparse import ArgumentParser, Namespace
+from pathlib import Path
 
 import torch
-from dataset import AcademicDataset
-from optimization.optimizer import get_optimizer
 from peft import PeftModel
 from torch.utils.data import DataLoader
-from trainer import InstructionTuningTrainer
 from transformers import AutoModelForCausalLM, AutoTokenizer, get_scheduler
-from utils.data_utils import read_json, collate_func
-from utils.train_utils import set_random_seeds
 
 import wandb
-from configs import get_bnb_config
+from lib.configs import get_bnb_config
+from lib.dataset import AcademicDataset
+from lib.optimization.optimizer import get_optimizer
+from lib.trainer import InstructionTuningTrainer
+from lib.utils.data_utils import collate_func, read_json
+from lib.utils.train_utils import set_random_seeds
 
 
 def parse_arguments() -> Namespace:
@@ -51,17 +52,17 @@ def parse_arguments() -> Namespace:
     parser.add_argument("--warm_up_step", type=int,
                         default=0,
                         help="number of warm up steps")
-    parser.add_argument("--lora_rank", type=int,
-                        default=16,
-                        help="rank of lora")
     parser.add_argument("--device_id", type=int,
                         default=0,
                         help="device id")
+    parser.add_argument("--lora_rank", type=int,
+                        default=16,
+                        help="rank of lora")
+    parser.add_argument("--nbit", type=int,
+                        default=4,
+                        help="nbit of quantization")
     parser.add_argument("--with_answer_details", action="store_true",
                         help="Option of answer details")
-
-    parser.add_argument('--int_bit', type=int, default=4)
-    parser.add_argument('--quant_embedding', action='store_true')
 
     return parser.parse_args()
 
@@ -93,12 +94,24 @@ if __name__ == "__main__":
         with_answer_details=args.with_answer_details,
     )
 
-    train_loader = DataLoader(train_dataset, num_workers=4, batch_size=args.batch_size,
-                              shuffle=True, collate_fn=collate_func)
-    valid_loader = DataLoader(valid_dataset, batch_size=1, shuffle=False, collate_fn=collate_func)
+    train_loader = DataLoader(
+        train_dataset,
+        num_workers=2,
+        batch_size=args.batch_size,
+        shuffle=True,
+        collate_fn=collate_func,
+    )
+    valid_loader = DataLoader(
+        valid_dataset,
+        batch_size=1,
+        shuffle=False,
+        collate_fn=collate_func
+    )
 
     # Prepare model
     bnb_config = get_bnb_config()
+    # ref: https://github.com/huggingface/peft/tree/main/examples/loftq_finetuning#load-and-train
+    bnb_config.bnb_4bit_use_double_quant = False
     device = torch.device(f"cuda:{args.device_id}" if torch.cuda.is_available() else "cpu")
 
     model = AutoModelForCausalLM.from_pretrained(
@@ -135,8 +148,7 @@ if __name__ == "__main__":
     # Prepared logger
     wandb.init(
         project="adl_final_project",
-        name="experiment",
-        group="loftq",
+        group=f"LoftQ-LLM-IT-{Path(args.train_data_path).stem}-{Path(args.valid_data_path).stem}",
         config={
             "tokenizer": args.base_model_path,
             "model": args.base_model_path,
@@ -149,6 +161,7 @@ if __name__ == "__main__":
             "weight_decay": args.weight_decay,
             "warm_up_step": args.warm_up_step,
             "lora_rank": args.lora_rank,
+            "nbit": args.nbit,
             "with_answer_details": args.with_answer_details,
         }
     )
