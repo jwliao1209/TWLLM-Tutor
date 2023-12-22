@@ -1,19 +1,20 @@
 import math
-import wandb
+from argparse import ArgumentParser, Namespace
+from pathlib import Path
 
 import torch
+from peft import PeftModel
 from torch.utils.data import DataLoader
+from transformers import (AutoModelForSequenceClassification, AutoTokenizer,
+                          get_scheduler)
 
-from argparse import Namespace, ArgumentParser
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_scheduler
-from peft import LoraConfig, TaskType, prepare_model_for_kbit_training, get_peft_model
-
-from configs import get_bnb_config
-from dataset import LLMMCDataset
-from optimization.optimizer import get_optimizer
-from trainer import MCTrainer
-from utils.train_utils import set_random_seeds
-from utils.data_utils import read_json, collate_func
+import wandb
+from lib.configs import get_bnb_config
+from lib.dataset import LLMMCDataset
+from lib.optimization.optimizer import get_optimizer
+from lib.trainer import MCTrainer
+from lib.utils.data_utils import collate_func, read_json
+from lib.utils.train_utils import set_random_seeds
 
 
 def parse_arguments() -> Namespace:
@@ -52,12 +53,15 @@ def parse_arguments() -> Namespace:
     parser.add_argument("--warm_up_step", type=int,
                         default=0,
                         help="number of warm up steps")
-    parser.add_argument("--lora_rank", type=int,
-                        default=8,
-                        help="rank of lora")
     parser.add_argument("--device_id", type=int,
                         default=0,
                         help="device id")
+    parser.add_argument("--lora_rank", type=int,
+                        default=8,
+                        help="rank of lora")
+    parser.add_argument("--nbit", type=int,
+                        default=2,
+                        help="nbit of quantization")
     return parser.parse_args()
 
 
@@ -76,29 +80,41 @@ if __name__ == "__main__":
     train_dataset = LLMMCDataset(train_data, tokenizer, max_length=1024)
     valid_dataset = LLMMCDataset(valid_data, tokenizer, max_length=1024)
 
-    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_func)
-    valid_loader = DataLoader(valid_dataset, batch_size=1, shuffle=False, collate_fn=collate_func)
+    train_loader = DataLoader(
+        train_dataset,
+        num_workers=2,
+        batch_size=args.batch_size,
+        shuffle=True,
+        collate_fn=collate_func,
+    )
+    valid_loader = DataLoader(
+        valid_dataset,
+        batch_size=1,
+        shuffle=False,
+        collate_fn=collate_func
+    )
 
     # Prepare model
     bnb_config = get_bnb_config()
+    # ref: https://github.com/huggingface/peft/tree/main/examples/loftq_finetuning#load-and-train
+    bnb_config.bnb_4bit_use_double_quant = False
     device = torch.device(f"cuda:{args.device_id}" if torch.cuda.is_available() else "cpu")
 
     model = AutoModelForSequenceClassification.from_pretrained(
         args.base_model_path,
         num_labels=4,
         torch_dtype=torch.bfloat16,
+        low_cpu_mem_usage=True,
         quantization_config=bnb_config,
     )
 
-    peft_config = LoraConfig(
-        lora_alpha=16,
-        lora_dropout=0.1,
-        r=args.lora_rank,
-        bias="none",
-        task_type=TaskType.SEQ_CLS,
+    model = PeftModel.from_pretrained(
+        model,
+        args.base_model_path,
+        subfolder="loftq_init",
+        is_trainable=True,
     )
-    model = prepare_model_for_kbit_training(model)
-    model = get_peft_model(model, peft_config)
+    model.print_trainable_parameters()
     model.config.pad_token_id = tokenizer.pad_token_id
 
     # Prepared optimizer and learning rate scheduler
@@ -115,19 +131,20 @@ if __name__ == "__main__":
     # Prepared logger
     wandb.init(
         project="adl_final_project",
-        name="twllm_mc", 
+        group=f"LoftQ-LLM-MC-{Path(args.train_data_path).stem}-{Path(args.valid_data_path).stem}",
         config={
             "tokenizer": args.base_model_path,
             "model": args.base_model_path,
             "epoch": args.epoch,
             "batch_size": args.batch_size,
             "accum_grad_step": args.accum_grad_step,
-            "optimizer": "adamw",
+            "optimizer": args.optimizer,
             "lr_scheduler": args.lr_scheduler,
             "lr": args.lr,
             "weight_decay": args.weight_decay,
             "warm_up_step": args.warm_up_step,
             "lora_rank": args.lora_rank,
+            "nbit": args.nbit,
         }
     )
     wandb.watch(model, log="all")

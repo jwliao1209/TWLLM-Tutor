@@ -8,12 +8,12 @@ from torch.utils.data import DataLoader
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
-from constants import FEW_SHOT, LORA_FINE_TUNE
-from configs import get_bnb_config
-from dataset import AcademicDataset
-from metric.accuracy import correcter
-from utils.data_utils import read_json, write_json, collate_func
-from utils.train_utils import set_random_seeds, dict_to_device
+from lib.constants import FEW_SHOT, LORA_FINE_TUNE
+from lib.configs import get_bnb_config
+from lib.dataset import AcademicDataset
+from lib.metric.accuracy import correcter
+from lib.utils.data_utils import read_json, write_json, collate_func
+from lib.utils.train_utils import set_random_seeds, dict_to_device
 
 
 logging.basicConfig(
