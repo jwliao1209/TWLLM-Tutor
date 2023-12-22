@@ -108,7 +108,7 @@ def arg_parse():
     parser.add_argument(
         "--save_dir",
         type=str,
-        default="./model_zoo",
+        default="./model_weight",
         help="The directory to save the quantized model",
     )
     parser.add_argument(
