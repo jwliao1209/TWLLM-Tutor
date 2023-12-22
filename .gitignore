@@ -4,8 +4,9 @@ lib/utils/__pycache__
 model_weight
 checkpoint
 checkpoint_old
+checkpoint_old1
 checkpoint_history
-predictions
+prediction*
 wandb
 *.pyc
 tmp.py

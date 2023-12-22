@@ -15,6 +15,7 @@
 
 import argparse
 import os
+from pathlib import Path
 
 import torch
 import torch.nn as nn
@@ -74,7 +75,7 @@ def print_model(model, name):
 def arg_parse():
     parser = argparse.ArgumentParser(description="Quantize a model with LoftQ.")
     parser.add_argument(
-        "--model_name_or_path",
+        "--base_model_path",
         type=str,
         default=None,
         required=True,
@@ -87,10 +88,10 @@ def arg_parse():
         help="The access token to download model from HuggingFace Hub.",
     )
     parser.add_argument(
-        "--bits",
+        "--nbit",
         type=int,
         default=4,
-        help="The quantized bits",
+        help="The quantized nbit",
     )
     parser.add_argument(
         "--iter",
@@ -99,7 +100,7 @@ def arg_parse():
         help="The alternating steps in LoftQ",
     )
     parser.add_argument(
-        "--rank",
+        "--lora_rank",
         type=int,
         default=16,
         help="The rank of the LoRA adapter",
@@ -107,12 +108,14 @@ def arg_parse():
     parser.add_argument(
         "--save_dir",
         type=str,
-        default="./model_zoo/loftq/",
-        help="The rank of the LoRA adapter",
+        default="./model_zoo",
+        help="The directory to save the quantized model",
     )
     parser.add_argument(
-        "--mc_model",
-        action="store_true",
+        "--task_type",
+        type=str,
+        default="IT",
+        choices=["IT", "MC"],
     )
     args = parser.parse_args()
     return args
@@ -121,70 +124,68 @@ def arg_parse():
 def quantize_and_save():
     args = arg_parse()
 
-    # Download weights and configure LoRA
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path, token=args.token, trust_remote_code=True)
-
-    if args.mc_model:
-        model = AutoModelForSequenceClassification.from_pretrained(
-            args.model_name_or_path, num_labels=4, token=args.token
-        )
-        task_type = TaskType.SEQ_CLS
-        target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "up_proj", "down_proj", "gate_proj"]
-    else:
-        model = AutoModelForCausalLM.from_pretrained(args.model_name_or_path, token=args.token, trust_remote_code=True)
-        task_type = TaskType.CAUSAL_LM
-        target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "up_proj", "down_proj", "gate_proj"]
-
-    # Config of LoftQ
-    loftq_config = LoftQConfig(loftq_bits=args.bits, loftq_iter=args.iter)
-
-    lora_config = LoraConfig(
-        task_type=task_type,
-        inference_mode=True,
-        r=args.rank,
-        lora_alpha=16 if task_type is TaskType.CAUSAL_LM else args.rank,
-        lora_dropout=0.1,
-        target_modules=target_modules,
-        init_lora_weights="loftq",
-        loftq_config=loftq_config,
-    )
-
-    # Obtain LoftQ model
-    lora_model = get_peft_model(model, lora_config)
-    base_model = lora_model.get_base_model()
-
     # Save LoftQ model
-    model_name = args.model_name_or_path.split("/")[-1] + f"-{args.bits}bit" + f"-{args.rank}rank"
-    if args.mc_model:
-        model_name += "-mc"
+    model_name = f"{args.base_model_path.split('/')[-1]}-{args.nbit}bit-{args.lora_rank}rank-{args.task_type}"
     base_model_dir = os.path.join(args.save_dir, model_name)
     lora_model_dir = os.path.join(args.save_dir, model_name, "loftq_init")
 
-    # save lora adapters first
-    lora_model.base_model.peft_config[
-        "default"
-    ].base_model_name_or_path = base_model_dir  # This can be a local path or Hub model id
-    lora_model.base_model.peft_config["default"].init_lora_weights = True  # Don't apply LoftQ when loading again
+    if not Path(base_model_dir).exists() or not Path(lora_model_dir).exists():
+        # Download weights and configure LoRA
+        print(f"Loading model and tokenizer from {args.base_model_path}")
+        tokenizer = AutoTokenizer.from_pretrained(args.base_model_path, token=args.token, trust_remote_code=True)
 
-    lora_model.save_pretrained(lora_model_dir)
-    print_model(lora_model, "lora_model")
+        if args.task_type == "MC":
+            model = AutoModelForSequenceClassification.from_pretrained(
+                args.base_model_path, num_labels=4, token=args.token
+            )
+            task_type = TaskType.SEQ_CLS
+            target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "up_proj", "down_proj", "gate_proj"]
+        elif args.task_type == "IT":
+            model = AutoModelForCausalLM.from_pretrained(
+                args.base_model_path, token=args.token, trust_remote_code=False)
+            task_type = TaskType.CAUSAL_LM
+            target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "up_proj", "down_proj", "gate_proj"]
+        else:
+            raise ValueError(f"Unknown task type: {args.task_type}")
 
-    # remove lora adapters and save the backbone
-    unwrap_model(base_model)
-    base_model.save_pretrained(base_model_dir)
-    tokenizer.save_pretrained(base_model_dir)
+        # Config of LoftQ
+        loftq_config = LoftQConfig(loftq_bits=args.nbit, loftq_iter=args.iter)
 
-    print_model(base_model, "base_model")
+        lora_config = LoraConfig(
+            task_type=task_type,
+            inference_mode=True,
+            r=args.lora_rank,
+            lora_alpha=16 if task_type is TaskType.CAUSAL_LM else args.lora_rank,
+            lora_dropout=0.1,
+            target_modules=target_modules,
+            init_lora_weights="loftq",
+            loftq_config=loftq_config,
+        )
+
+        # Obtain LoftQ model
+        lora_model = get_peft_model(model, lora_config)
+        base_model = lora_model.get_base_model()
+
+        # save lora adapters first
+        lora_model.base_model.peft_config[
+            "default"
+        ].base_base_model_path = base_model_dir  # This can be a local path or Hub model id
+        lora_model.base_model.peft_config["default"].init_lora_weights = True  # Don't apply LoftQ when loading again
+
+        lora_model.save_pretrained(lora_model_dir)
+        print_model(lora_model, "lora_model")
+
+        # remove lora adapters and save the backbone
+        unwrap_model(base_model)
+        base_model.save_pretrained(base_model_dir)
+        tokenizer.save_pretrained(base_model_dir)
+
+        print_model(base_model, "base_model")
 
     return base_model_dir, lora_model_dir
 
 
 if __name__ == "__main__":
+    print("Status: Quantizing and saving the model")
     base_dir, lora_dir = quantize_and_save()
-
-# example command:
-# python quantize_save_load.py \
-# --model_name_or_path meta-llama/Llama-2-7b-hf \
-# --token XXX \
-# --bits 4 --iter 5 --rank 16 \
-# --save_dir ./model_zoo/loftq/
+    print(f"Base model saved to {base_dir}, LoraQ model saved to {lora_dir}")

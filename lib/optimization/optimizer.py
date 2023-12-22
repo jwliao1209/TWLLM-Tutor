@@ -1,5 +1,6 @@
-from torch.optim import Optimizer, AdamW
-from optimization.lion import Lion
+from torch.optim import AdamW, Optimizer
+
+from .lion import Lion
 
 
 def get_optimizer(
@@ -7,7 +8,7 @@ def get_optimizer(
     optimizer_name: str,
     lr: float = 3e-5,
     weight_decay: float = 0,
-    ) -> Optimizer:
+) -> Optimizer:
 
     no_decay = ["bias", "LayerNorm.weight", "layer_norm.weight"]
     optimizer_grouped_parames = [
@@ -26,4 +27,4 @@ def get_optimizer(
         case "lion":
             return Lion(optimizer_grouped_parames, lr=lr)
         case _:
-            raise 
+            raise

@@ -1,6 +1,6 @@
-import torch
-from constants import PROMPT_PREFIX_DICT, USER, ASSISTANT, OPTION_TO_LABEL
 from torch.utils.data.dataset import Dataset
+
+from .constants import ASSISTANT, OPTION_TO_LABEL, PROMPT_PREFIX_DICT, USER
 
 
 class Prompt:
@@ -48,7 +48,7 @@ class AcademicDataset(Dataset):
         self.max_length = max_length
         self.is_train = is_train
         self.with_incontext = with_incontext
-        self.prompt_prefix=prompt_prefix
+        self.prompt_prefix = prompt_prefix
         self.with_answer_details = with_answer_details
         self.data_list = self.transform(data_list)
 
@@ -132,7 +132,8 @@ class LLMMCDataset(Dataset):
     def transform(self, data_list):
         processed_data = []
         for data in data_list:
-            question = f"{data['question']} \nA.{data['A']} \nB.{data['B']} \nC.{data['C']} \nD.{data['D']}".replace(" ", "")
+            question = f"{data['question']} \nA.{data['A']} \nB.{data['B']} \nC.{data['C']} \nD.{data['D']}".replace(
+                " ", "")
             tokenized_question = self.tokenizer(
                 question,
                 add_special_tokens=False,

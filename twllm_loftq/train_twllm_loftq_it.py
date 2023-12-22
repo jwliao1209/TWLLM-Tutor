@@ -1,19 +1,19 @@
 import math
 from argparse import ArgumentParser, Namespace
+from pathlib import Path
 
 import torch
-from dataset import LLMMCDataset
-from optimization.optimizer import get_optimizer
 from peft import PeftModel
 from torch.utils.data import DataLoader
-from trainer import MCTrainer
-from transformers import (AutoModelForSequenceClassification, AutoTokenizer,
-                          get_scheduler)
-from utils.data_utils import read_json, collate_func
-from utils.train_utils import set_random_seeds
+from transformers import AutoModelForCausalLM, AutoTokenizer, get_scheduler
 
 import wandb
-from configs import get_bnb_config
+from lib.configs import get_bnb_config
+from lib.dataset import AcademicDataset
+from lib.optimization.optimizer import get_optimizer
+from lib.trainer import InstructionTuningTrainer
+from lib.utils.data_utils import collate_func, read_json
+from lib.utils.train_utils import set_random_seeds
 
 
 def parse_arguments() -> Namespace:
@@ -29,13 +29,13 @@ def parse_arguments() -> Namespace:
                         default="data/train_data/valid.json",
                         help="Path to validation data.")
     parser.add_argument("--batch_size", type=int,
-                        default=8,
+                        default=16,
                         help="batch size")
     parser.add_argument("--accum_grad_step", type=int,
-                        default=2,
+                        default=1,
                         help="accumulation gradient steps")
     parser.add_argument("--epoch", type=int,
-                        default=100,
+                        default=1,
                         help="number of epochs")
     parser.add_argument("--optimizer", type=str,
                         default="adamw",
@@ -52,12 +52,18 @@ def parse_arguments() -> Namespace:
     parser.add_argument("--warm_up_step", type=int,
                         default=0,
                         help="number of warm up steps")
-    parser.add_argument("--lora_rank", type=int,
-                        default=8,
-                        help="rank of lora")
     parser.add_argument("--device_id", type=int,
                         default=0,
                         help="device id")
+    parser.add_argument("--lora_rank", type=int,
+                        default=16,
+                        help="rank of lora")
+    parser.add_argument("--nbit", type=int,
+                        default=4,
+                        help="nbit of quantization")
+    parser.add_argument("--with_answer_details", action="store_true",
+                        help="Option of answer details")
+
     return parser.parse_args()
 
 
@@ -66,27 +72,50 @@ if __name__ == "__main__":
     set_random_seeds()
 
     args = parse_arguments()
-
-    # Prepare dataset
-    tokenizer = AutoTokenizer.from_pretrained(args.base_model_path, use_fast=False)
-
     train_data = read_json(args.train_data_path)
     valid_data = read_json(args.valid_data_path)
 
-    train_dataset = LLMMCDataset(train_data, tokenizer, max_length=1024)
-    valid_dataset = LLMMCDataset(valid_data, tokenizer, max_length=1024)
+    # Prepare dataset
+    tokenizer = AutoTokenizer.from_pretrained(
+        args.base_model_path,
+        use_fast=False,
+    )
 
-    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_func)
-    valid_loader = DataLoader(valid_dataset, batch_size=1, shuffle=False, collate_fn=collate_func)
+    train_dataset = AcademicDataset(
+        train_data, tokenizer,
+        max_length=512,
+        is_train=True,
+        with_answer_details=args.with_answer_details,
+    )
+    valid_dataset = AcademicDataset(
+        valid_data, tokenizer,
+        max_length=2048,
+        is_train=False,
+        with_answer_details=args.with_answer_details,
+    )
+
+    train_loader = DataLoader(
+        train_dataset,
+        num_workers=2,
+        batch_size=args.batch_size,
+        shuffle=True,
+        collate_fn=collate_func,
+    )
+    valid_loader = DataLoader(
+        valid_dataset,
+        batch_size=1,
+        shuffle=False,
+        collate_fn=collate_func
+    )
 
     # Prepare model
     bnb_config = get_bnb_config()
+    # ref: https://github.com/huggingface/peft/tree/main/examples/loftq_finetuning#load-and-train
+    bnb_config.bnb_4bit_use_double_quant = False
     device = torch.device(f"cuda:{args.device_id}" if torch.cuda.is_available() else "cpu")
 
-    model = AutoModelForSequenceClassification.from_pretrained(
+    model = AutoModelForCausalLM.from_pretrained(
         args.base_model_path,
-        num_labels=4,
-        torch_dtype=torch.bfloat16,
         low_cpu_mem_usage=True,
         quantization_config=bnb_config,
     )
@@ -98,10 +127,15 @@ if __name__ == "__main__":
         is_trainable=True,
     )
     model.print_trainable_parameters()
-    model.config.pad_token_id = tokenizer.pad_token_id
+    print(model)
 
     # Prepared optimizer and learning rate scheduler
-    optimizer = get_optimizer(model, lr=args.lr, optimizer_name=args.optimizer, weight_decay=args.weight_decay)
+    optimizer = get_optimizer(
+        model,
+        optimizer_name=args.optimizer,
+        lr=args.lr,
+        weight_decay=args.weight_decay
+    )
     num_update_steps_per_epoch = math.ceil(len(train_loader) / args.accum_grad_step)
     max_train_steps = args.epoch * num_update_steps_per_epoch
     lr_scheduler = get_scheduler(
@@ -114,26 +148,27 @@ if __name__ == "__main__":
     # Prepared logger
     wandb.init(
         project="adl_final_project",
-        name="twllm_mc_loftQ",
-        group="twllm_mc_loftQ",
+        group=f"LoftQ-LLM-IT-{Path(args.train_data_path).stem}-{Path(args.valid_data_path).stem}",
         config={
             "tokenizer": args.base_model_path,
             "model": args.base_model_path,
             "epoch": args.epoch,
             "batch_size": args.batch_size,
             "accum_grad_step": args.accum_grad_step,
-            "optimizer": "adamw",
+            "optimizer": args.optimizer,
             "lr_scheduler": args.lr_scheduler,
             "lr": args.lr,
             "weight_decay": args.weight_decay,
             "warm_up_step": args.warm_up_step,
             "lora_rank": args.lora_rank,
+            "nbit": args.nbit,
+            "with_answer_details": args.with_answer_details,
         }
     )
     wandb.watch(model, log="all")
 
     # Start training
-    trainer = MCTrainer(
+    trainer = InstructionTuningTrainer(
         tokenizer=tokenizer,
         model=model,
         device=device,
