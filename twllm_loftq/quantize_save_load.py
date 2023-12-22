@@ -108,8 +108,8 @@ def arg_parse():
     parser.add_argument(
         "--save_dir",
         type=str,
-        default="./model_zoo/loftq/",
-        help="The rank of the LoRA adapter",
+        default="./model_zoo",
+        help="The directory to save the quantized model",
     )
     parser.add_argument(
         "--task_type",
@@ -125,8 +125,7 @@ def quantize_and_save():
     args = arg_parse()
 
     # Save LoftQ model
-    model_name = args.base_model_path.split("/")[-1] + f"-{args.nbit}bit" + f"-{args.lora_rank}rank"
-    model_name += f"-{args.task_type}"
+    model_name = f"{args.base_model_path.split('/')[-1]}-{args.nbit}bit-{args.lora_rank}rank-{args.task_type}"
     base_model_dir = os.path.join(args.save_dir, model_name)
     lora_model_dir = os.path.join(args.save_dir, model_name, "loftq_init")
 

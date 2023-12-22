@@ -123,7 +123,7 @@ if __name__ == "__main__":
     model = PeftModel.from_pretrained(
         model,
         args.base_model_path,
-        subfolder="loft_init",
+        subfolder="loftq_init",
         is_trainable=True,
     )
     model.print_trainable_parameters()
