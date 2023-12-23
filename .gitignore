@@ -8,4 +8,5 @@ data_analysis/.ipynb_checkpoints
 /checkpoint
 /prediction*
 /wandb
+/result*
 tmp
