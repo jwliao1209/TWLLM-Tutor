@@ -4,9 +4,8 @@ lib/utils/__pycache__
 data_analysis/.ipynb_checkpoints
 *.pyc
 
-model_weight
-scripts
-checkpoint
-prediction*
-wandb
+/model_weight
+/checkpoint
+/prediction*
+/wandb
 tmp

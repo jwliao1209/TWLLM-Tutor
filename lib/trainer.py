@@ -14,8 +14,6 @@ from .tracker import MetricTracker
 from .utils.data_utils import write_json
 from .utils.train_utils import dict_to_device
 
-torch.set_float32_matmul_precision("high")
-
 
 class BaseTrainer:
     def __init__(
@@ -88,6 +86,7 @@ class BaseTrainer:
             self.progress_bar.set_postfix(self.tracker.result() | {"lr": self.lr_scheduler.get_last_lr()[0]})
             self.log(self.tracker.result() | {"lr": self.lr_scheduler.get_last_lr()[0]})
 
+            # ref: https://pytorch.org/tutorials/recipes/recipes/amp_recipe.html#adding-gradscaler
             self.grad_scaler.scale(loss / self.accum_grad_step).backward()
 
             if step % self.accum_grad_step == 0:

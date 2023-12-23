@@ -18,5 +18,7 @@ ipython --pdb -- twllm_loftq/train_twllm_loftq_it.py \
 	--accum_grad_step 4 \
 	--nbit $NBIT \
 	--lora_rank $LORA_RANK \
+	--lr_scheduler cosine \
+	--warm_up_step 300 \
 	--with_answer_details \
 	--lr 2e-4
