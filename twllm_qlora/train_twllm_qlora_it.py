@@ -49,7 +49,7 @@ if __name__ == "__main__":
     )
     valid_dataset = AcademicDataset(
         valid_data, tokenizer,
-        max_length=2048,
+        max_length=config.dataset.valid.max_length,
         is_train=False,
         with_answer_details=config.dataset.train.with_answer_details,
     )
