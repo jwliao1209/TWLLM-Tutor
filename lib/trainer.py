@@ -105,7 +105,7 @@ class BaseTrainer:
     def valid_one_epoch(self, valid_loader=None):
         self.model.eval()
         valid_loader = self.valid_loader if valid_loader is None else valid_loader
-        self.progress_bar = tqdm(self.valid_loader, desc=f"Validation {self.cur_ep}")
+        self.progress_bar = tqdm(valid_loader, desc=f"Validation {self.cur_ep}")
         self.tracker.reset(keys=["valid/acc"])
 
         pred_list = []
