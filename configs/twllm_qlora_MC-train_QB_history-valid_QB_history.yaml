@@ -1,14 +1,14 @@
-name: twllm_qlora_it-train_QB_history-valid_QB_history_w_answer_details
+name: twllm_qlora_MC-train_QB_history-valid_QB_history
 
 dataset:
   train:
     data_path: data/train_data/train_QB_history_9000.json
     max_length: 512
-    with_answer_details: True
+    with_answer_details: False  # TODO: refactor this
   valid:
     data_path: data/train_data/valid_QB_history_205.json
     max_length: 2048
-    with_answer_details: True
+    with_answer_details: False  # TODO: refactor this
 
 dataloader:
   train:
@@ -19,6 +19,7 @@ dataloader:
     num_workers: 1  # do not change
 
 model:
+  finetune_type: multiple_choice
   base_model_path: model_weight/Taiwan-LLM-7B-v2.0-chat
   lora_rank: 8
   lora_alpha: 16

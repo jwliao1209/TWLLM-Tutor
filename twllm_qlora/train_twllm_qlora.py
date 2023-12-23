@@ -3,16 +3,18 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
 import torch
-from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, TaskType
 from torch.utils.data import DataLoader
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForSequenceClassification, AutoModelForCausalLM, AutoTokenizer
 from easydict import EasyDict
 
 import wandb
 from lib.configs import get_bnb_config
-from lib.dataset import AcademicDataset
-from lib.optimization.optimizer import get_optimizer, get_lr_scheduler
-from lib.trainer import InstructionTuningTrainer
+from lib.constants import INSTRUCTION_TUNING, MULTIPLE_CHOICE
+from lib.dataset import AcademicDataset, LLMMCDataset
+from lib.optim.optimizer import get_optimizer
+from lib.optim.lr_scheduler import get_lr_scheduler
+from lib.trainer import InstructionTuningTrainer, MCTrainer
 from lib.utils.data_utils import collate_func, read_json, flatten_dict
 from lib.utils.train_utils import set_random_seeds
 
@@ -20,7 +22,7 @@ from lib.utils.train_utils import set_random_seeds
 def parse_arguments() -> Namespace:
     parser = ArgumentParser(description="Taiwan-LLaMa Instruction Tuning")
     parser.add_argument("--config_path", type=str,
-                        default="configs/twllm_qlora_it-train_QB_history-valid_QB_history_w_answer_details.yaml")
+                        default="configs/twllm_qlora_IT-train_QB_history-valid_QB_history_w_answer_details.yaml")
     return parser.parse_args()
 
 
@@ -29,7 +31,7 @@ if __name__ == "__main__":
     set_random_seeds()
     args = parse_arguments()
 
-    # Split config
+    # Load config
     config = EasyDict(yaml.load(open(args.config_path, "r"), Loader=yaml.FullLoader))
 
     # Prepare dataset
@@ -40,13 +42,18 @@ if __name__ == "__main__":
     train_data = read_json(config.dataset.train.data_path)
     valid_data = read_json(config.dataset.valid.data_path)
 
-    train_dataset = AcademicDataset(
+    if config.model.finetune_type == INSTRUCTION_TUNING:
+        Dataset = AcademicDataset
+    elif config.model.finetune_type == MULTIPLE_CHOICE:
+        Dataset = LLMMCDataset
+
+    train_dataset = Dataset(
         train_data, tokenizer,
         max_length=config.dataset.train.max_length,
         is_train=True,
         with_answer_details=config.dataset.train.with_answer_details,
     )
-    valid_dataset = AcademicDataset(
+    valid_dataset = Dataset(
         valid_data, tokenizer,
         max_length=config.dataset.valid.max_length,
         is_train=False,
@@ -71,20 +78,42 @@ if __name__ == "__main__":
     # Prepare model
     bnb_config = get_bnb_config()
     device = torch.device(f"cuda:{config.device.cuda_id}" if torch.cuda.is_available() else "cpu")
-    model = AutoModelForCausalLM.from_pretrained(
-        config.model.base_model_path,
-        torch_dtype=torch.bfloat16,
-        quantization_config=bnb_config,
-    )
-    peft_config = LoraConfig(
-        r=config.model.lora_rank,
-        lora_alpha=config.model.lora_alpha,
-        lora_dropout=config.model.lora_dropout,
-        bias="none",
-        task_type="CAUSAL_LM",
-    )
-    model = prepare_model_for_kbit_training(model)
-    model = get_peft_model(model, peft_config)
+
+    if config.model.finetune_type == INSTRUCTION_TUNING:
+        model = AutoModelForCausalLM.from_pretrained(
+            config.model.base_model_path,
+            torch_dtype=torch.bfloat16,
+            quantization_config=bnb_config,
+        )
+        peft_config = LoraConfig(
+            r=config.model.lora_rank,
+            lora_alpha=config.model.lora_alpha,
+            lora_dropout=config.model.lora_dropout,
+            bias="none",
+            task_type="CAUSAL_LM",
+        )
+        model = prepare_model_for_kbit_training(model)
+        model = get_peft_model(model, peft_config)
+        Trainer = InstructionTuningTrainer
+
+    elif config.model.finetune_type == MULTIPLE_CHOICE:
+        model = AutoModelForSequenceClassification.from_pretrained(
+            config.model.base_model_path,
+            num_labels=4,
+            torch_dtype=torch.bfloat16,
+            quantization_config=bnb_config,
+        )
+        peft_config = LoraConfig(
+            r=config.model.lora_rank,
+            lora_alpha=config.model.lora_alpha,
+            lora_dropout=config.model.lora_dropout,
+            bias="none",
+            task_type=TaskType.SEQ_CLS,
+        )
+        model = prepare_model_for_kbit_training(model)
+        model = get_peft_model(model, peft_config)
+        model.config.pad_token_id = tokenizer.pad_token_id
+        Trainer = MCTrainer
 
     # Prepared optimizer and learning rate scheduler
     optimizer = get_optimizer(
@@ -106,13 +135,13 @@ if __name__ == "__main__":
     # Prepared logger
     wandb.init(
         project="adl_final_project",
-        group=f"LLM-IT-{Path(config.dataset.train.data_path).stem}-{Path(config.dataset.valid.data_path).stem}",
+        group=f"TWLLM-{config.model.finetune_type}-{Path(config.dataset.train.data_path).stem}-{Path(config.dataset.valid.data_path).stem}",
         config=flatten_dict(config),
     )
     wandb.watch(model, log="all")
 
     # Start training
-    trainer = InstructionTuningTrainer(
+    trainer = Trainer(
         tokenizer=tokenizer,
         model=model,
         device=device,

@@ -13,7 +13,7 @@ import wandb
 from lib.lib_mc.constants import MC_DATA_FILE
 from lib.lib_mc.preprocess import preprocess_mc_func
 from lib.lib_mc.trainer import MCTrainer
-from lib.optimization.optimizer import get_optimizer
+from lib.optim.optimizer import get_optimizer
 from lib.utils.train_utils import set_random_seeds
 
 

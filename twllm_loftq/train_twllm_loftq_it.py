@@ -10,7 +10,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, get_scheduler
 import wandb
 from lib.configs import get_bnb_config
 from lib.dataset import AcademicDataset
-from lib.optimization.optimizer import get_optimizer
+from lib.optim.optimizer import get_optimizer
 from lib.trainer import InstructionTuningTrainer
 from lib.utils.data_utils import collate_func, read_json
 from lib.utils.train_utils import set_random_seeds
