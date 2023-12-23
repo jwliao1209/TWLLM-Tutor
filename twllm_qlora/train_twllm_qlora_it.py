@@ -1,4 +1,3 @@
-import math
 import yaml
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
@@ -6,13 +5,13 @@ from pathlib import Path
 import torch
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from torch.utils.data import DataLoader
-from transformers import AutoModelForCausalLM, AutoTokenizer, get_scheduler
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from easydict import EasyDict
 
 import wandb
 from lib.configs import get_bnb_config
 from lib.dataset import AcademicDataset
-from lib.optimization.optimizer import get_optimizer
+from lib.optimization.optimizer import get_optimizer, get_lr_scheduler
 from lib.trainer import InstructionTuningTrainer
 from lib.utils.data_utils import collate_func, read_json, flatten_dict
 from lib.utils.train_utils import set_random_seeds
@@ -94,13 +93,14 @@ if __name__ == "__main__":
         lr=config.optim.optimizer.lr,
         weight_decay=config.optim.optimizer.weight_decay,
     )
-    num_update_steps_per_epoch = math.ceil(len(train_loader) / config.trainer.accum_grad_step)
-    max_train_steps = config.trainer.epoch * num_update_steps_per_epoch
-    lr_scheduler = get_scheduler(
+
+    lr_scheduler = get_lr_scheduler(
         name=config.optim.lr_scheduler.name,
         optimizer=optimizer,
-        num_warmup_steps=math.ceil(config.optim.lr_scheduler.warm_up_step / config.trainer.accum_grad_step),
-        num_training_steps=max_train_steps,
+        epoch=config.trainer.epoch,
+        train_loader_len=len(train_loader),
+        accum_grad_step=config.trainer.accum_grad_step,
+        warm_up_step=config.optim.lr_scheduler.warm_up_step,
     )
 
     # Prepared logger
