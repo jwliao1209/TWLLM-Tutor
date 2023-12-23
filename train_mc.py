@@ -85,7 +85,7 @@ def preprocess_files(data_files: dict[str, str], fields_to_keep: list[str], tmp_
     for key, filename in data_files.items():
         tmp_filename = tmp_dir + "/" + filename.split("/")[-1]
         output[key] = tmp_filename
-        data = json.load(open(filename, "r"))
+        data = json.load(open(filename, "r", encoding='utf-8'))
         data = [
             {
                 k: sample[k]
@@ -93,8 +93,10 @@ def preprocess_files(data_files: dict[str, str], fields_to_keep: list[str], tmp_
             }
             for sample in data
         ]
-        json.dump(data, open(tmp_filename, "w"))
+        json.dump(data, open(tmp_filename, "w", encoding='utf-8'),
+                  ensure_ascii=False, indent=4)
     return output
+
 
 if __name__ == "__main__":
     set_random_seeds()
@@ -119,7 +121,8 @@ if __name__ == "__main__":
         'valid_GSAT_civics': "data/train_data/valid_GSAT_civics-108-112_79.json",
         'valid_QB_history': "data/train_data/valid_QB_history_205.json",
     }
-    data_files = preprocess_files(data_files, ['question', 'A', 'B', 'C', 'D', 'answer'], "./tmp")
+    data_files = preprocess_files(
+        data_files, ['question', 'A', 'B', 'C', 'D', 'answer'], "./tmp")
     datasets = load_dataset(
         "json",
         data_files=data_files,
@@ -136,20 +139,20 @@ if __name__ == "__main__":
     training_datasets = []
     validation_datasets = []
 
-    if not args.use_train_gsat_83_107:
+    if args.use_train_gsat_83_107:
         training_datasets.append(processed_datasets["train_GSAT_83_107"])
-    if not args.use_train_qb_history:
+    if args.use_train_qb_history:
         training_datasets.append(processed_datasets["train_QB_history"])
-    if not args.use_train_qb_civics:
+    if args.use_train_qb_civics:
         training_datasets.append(processed_datasets["train_QB_civics"])
 
-    if not args.use_valid_gsat_all:
+    if args.use_valid_gsat_all:
         validation_datasets.append(processed_datasets["valid_GSAT_all"])
-    if not args.use_valid_gsat_history:
+    if args.use_valid_gsat_history:
         validation_datasets.append(processed_datasets["valid_GSAT_history"])
-    if not args.use_valid_gsat_civics:
+    if args.use_valid_gsat_civics:
         validation_datasets.append(processed_datasets["valid_GSAT_civics"])
-    if not args.use_valid_qb_history:
+    if args.use_valid_qb_history:
         validation_datasets.append(processed_datasets["valid_QB_history"])
 
     processed_datasets["train"] = concatenate_datasets(
