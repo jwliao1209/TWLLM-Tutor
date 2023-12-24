@@ -9,7 +9,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, get_scheduler
 from peft import LoraConfig, prepare_model_for_kbit_training, get_peft_model
 
 from configs import get_bnb_config
-from dataset import AcademicDataset, collate_func
+from dataset import InstructionDataset, collate_func
 from optimizer import get_optimizer
 from trainer import Trainer
 from utils.train_utils import set_random_seeds

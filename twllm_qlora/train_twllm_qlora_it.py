@@ -9,7 +9,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, get_scheduler
 
 import wandb
 from lib.configs import get_bnb_config
-from lib.dataset import AcademicDataset
+from lib.dataset import InstructionDataset
 from lib.optimization.optimizer import get_optimizer
 from lib.trainer import InstructionTuningTrainer
 from lib.utils.data_utils import collate_func, read_json
@@ -75,13 +75,13 @@ if __name__ == "__main__":
     train_data = read_json(args.train_data_path)
     valid_data = read_json(args.valid_data_path)
 
-    train_dataset = AcademicDataset(
+    train_dataset = InstructionDataset(
         train_data, tokenizer,
         max_length=512,
         is_train=True,
         with_answer_details=args.with_answer_details,
     )
-    valid_dataset = AcademicDataset(
+    valid_dataset = InstructionDataset(
         valid_data, tokenizer,
         max_length=2048,
         is_train=False,

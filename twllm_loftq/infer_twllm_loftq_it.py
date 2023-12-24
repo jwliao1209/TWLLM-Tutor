@@ -9,7 +9,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from lib.configs import get_bnb_config
 from lib.constants import FEW_SHOT, LORA_FINE_TUNE
-from lib.dataset import AcademicDataset
+from lib.dataset import InstructionDataset
 from lib.trainer import InstructionTuningTrainer
 from lib.utils.data_utils import collate_func, read_json, write_json
 from lib.utils.train_utils import set_random_seeds
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     tokenizer = AutoTokenizer.from_pretrained(args.base_model_path)
     test_data = read_json(args.test_data_path)
     prompt_prefix = args.prompt_prefix
-    test_dataset = AcademicDataset(
+    test_dataset = InstructionDataset(
         test_data, tokenizer, prompt_prefix,
         max_length=2048,
         is_train=False,

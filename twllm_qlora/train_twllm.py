@@ -11,7 +11,7 @@ from easydict import EasyDict
 import wandb
 from lib.configs import get_bnb_config
 from lib.constants import INSTRUCTION_TUNING, MULTIPLE_CHOICE, QLORA, LOFTQ
-from lib.dataset import AcademicDataset, LLMMCDataset
+from lib.dataset import InstructionDataset, LLMMCDataset
 from lib.optim.optimizer import get_optimizer
 from lib.optim.lr_scheduler import get_lr_scheduler
 from lib.trainer import InstructionTuningTrainer, MultipleChoiceTrainer
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     valid_data = read_json(config.dataset.valid.data_path)
 
     if config.model.finetune_type == INSTRUCTION_TUNING:
-        Dataset = AcademicDataset
+        Dataset = InstructionDataset
     elif config.model.finetune_type == MULTIPLE_CHOICE:
         Dataset = LLMMCDataset
 

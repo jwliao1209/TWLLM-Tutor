@@ -10,7 +10,7 @@ from peft import PeftModel
 
 from lib.constants import FEW_SHOT, LORA_FINE_TUNE
 from lib.configs import get_bnb_config
-from lib.dataset import AcademicDataset
+from lib.dataset import InstructionDataset
 from lib.metric.accuracy import correcter
 from lib.utils.data_utils import read_json, write_json, collate_func
 from lib.utils.train_utils import set_random_seeds, dict_to_device
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     tokenizer = AutoTokenizer.from_pretrained(args.base_model_path)
     test_data = read_json(args.test_data_path)
     prompt_prefix=args.prompt_prefix
-    test_dataset = AcademicDataset(
+    test_dataset = InstructionDataset(
         test_data, tokenizer, prompt_prefix,
         max_length=2048,
         is_train=False,

@@ -32,7 +32,7 @@ class Answer:
             return f"{data['answer']}.{data[str(data['answer'])]}"
 
 
-class AcademicDataset(Dataset):
+class InstructionDataset(Dataset):
     def __init__(
         self,
         data_list,
