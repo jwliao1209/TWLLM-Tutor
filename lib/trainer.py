@@ -241,7 +241,7 @@ class InstructionTuningTrainer(BaseTrainer):
         return prediction_list
 
 
-class MCTrainer(BaseTrainer):
+class MultipleChoiceTrainer(BaseTrainer):
 
     def train_step(self, batch_data, index):
         with torch.cuda.amp.autocast(

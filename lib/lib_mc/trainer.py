@@ -97,7 +97,7 @@ class BaseTrainer:
         return
 
 
-class MCTrainer(BaseTrainer):
+class MultipleChoiceTrainer(BaseTrainer):
     def __init__(
         self,
         model,

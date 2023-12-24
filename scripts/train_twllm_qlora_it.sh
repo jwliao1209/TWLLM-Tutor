@@ -1,11 +1,2 @@
-CUDA_VISIBLE_DEVICES=1 ipython -- twllm_qlora/train_twllm_qlora_it.py \
-                                --base_model_path model_weight/Taiwan-LLM-7B-v2.0-chat \
-                                --epoch 100 \
-                                --train_data_path data/train_data/train_QB_history_9000.json \
-                                --valid_data_path data/train_data/valid_QB_history_205.json \
-                                --batch_size 16 \
-                                --accum_grad_step 1 \
-                                --lr 2e-4 \
-                                --lora_rank 8 \
-                                --with_answer_details \
-                                --optimizer adamw
+CUDA_VISIBLE_DEVICES=0 ipython -- twllm_qlora/train_twllm_qlora.py \
+                                --config_path configs/twllm_qlora_IT-train_QB_history-valid_QB_history_w_answer_details.yaml
