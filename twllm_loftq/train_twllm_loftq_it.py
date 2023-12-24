@@ -29,10 +29,10 @@ def parse_arguments() -> Namespace:
                         default="data/train_data/valid.json",
                         help="Path to validation data.")
     parser.add_argument("--batch_size", type=int,
-                        default=16,
+                        default=4,
                         help="batch size")
     parser.add_argument("--accum_grad_step", type=int,
-                        default=1,
+                        default=4,
                         help="accumulation gradient steps")
     parser.add_argument("--epoch", type=int,
                         default=1,
@@ -178,5 +178,8 @@ if __name__ == "__main__":
         accum_grad_step=args.accum_grad_step,
         lr_scheduler=lr_scheduler,
         logger=wandb,
+        disable_valid_on_start=True,
+        checkpoint_dir=f"checkpoint/LoftQ-LLM-IT-{Path(args.train_data_path).stem}-{Path(args.valid_data_path).stem}/ckpt",
+        prediction_dir=f"prediction/LoftQ-LLM-IT-{Path(args.train_data_path).stem}-{Path(args.valid_data_path).stem}/pred",
     )
     trainer.fit(epoch=args.epoch)
