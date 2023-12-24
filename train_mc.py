@@ -12,7 +12,7 @@ from transformers import (AutoConfig, AutoModelForMultipleChoice,
 
 import wandb
 from lib.lib_mc.preprocess import preprocess_mc_func
-from lib.lib_mc.trainer import MCTrainer
+from lib.lib_mc.trainer import MultipleChoiceTrainer
 from lib.optim.optimizer import get_optimizer
 from lib.utils.train_utils import set_random_seeds
 
@@ -225,7 +225,7 @@ if __name__ == "__main__":
     )
     wandb.watch(model, log="all")
 
-    trainer = MCTrainer(
+    trainer = MultipleChoiceTrainer(
         model=model,
         device=device,
         train_loader=train_loader,

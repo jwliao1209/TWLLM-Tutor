@@ -5,6 +5,8 @@ FEW_SHOT = "few-shot"
 LORA_FINE_TUNE = "lora-fine-tune"
 INSTRUCTION_TUNING = "instruction_tuning"
 MULTIPLE_CHOICE = "multiple_choice"
+QLORA = "qlora"
+LOFTQ = "loftq"
 
 TRAIN_FOLDERS = [
     "83",

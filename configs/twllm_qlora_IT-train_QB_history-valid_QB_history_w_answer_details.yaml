@@ -20,6 +20,7 @@ dataloader:
 
 model:
   finetune_type: instruction_tuning
+  adapter: qlora
   base_model_path: model_weight/Taiwan-LLM-7B-v2.0-chat
   lora_rank: 8
   lora_alpha: 16

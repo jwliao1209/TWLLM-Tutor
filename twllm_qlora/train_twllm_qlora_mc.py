@@ -13,7 +13,7 @@ import wandb
 from lib.configs import get_bnb_config
 from lib.dataset import LLMMCDataset
 from lib.optim.optimizer import get_optimizer
-from lib.trainer import MCTrainer
+from lib.trainer import MultipleChoiceTrainer
 from lib.utils.data_utils import collate_func, read_json
 from lib.utils.train_utils import set_random_seeds
 
@@ -146,7 +146,7 @@ if __name__ == "__main__":
     wandb.watch(model, log="all")
 
     # Start training
-    trainer = MCTrainer(
+    trainer = MultipleChoiceTrainer(
         tokenizer=tokenizer,
         model=model,
         device=device,
