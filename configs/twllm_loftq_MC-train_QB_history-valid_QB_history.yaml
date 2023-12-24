@@ -2,11 +2,11 @@ name: twllm_loftq_MC-train_QB_history-valid_QB_history_w_answer_details
 
 dataset:
   train:
-    data_path: data/train_data/train_QB_history_9000.json
+    data_path: data/train_data/QB_social/train_QB_history_9000.json
     max_length: 512
     with_answer_details: True
   valid:
-    data_path: data/train_data/valid_QB_history_205.json
+    data_path: data/train_data/QB_social/valid_QB_history_205.json
     max_length: 2048
     with_answer_details: True
 

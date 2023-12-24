@@ -4,9 +4,8 @@
 
 ```
 data
-|- public       # Public is for data we consider publishable (without copyright issues, etc).
-|- private      # Private is for data we don't want to publish (For future extensions).
-|- raw_data     # Raw_data is a directory to save raw data.
+|- GSAT_social  # Public is for data we consider publishable (without copyright issues, etc).
+|- QB_social    # Private is for data we don't want to publish (For future extensions).
 ```
 
 ## Data Format

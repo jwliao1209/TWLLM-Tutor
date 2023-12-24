@@ -2,11 +2,11 @@ name: twllm_qlora_IT-train_QB_history-valid_QB_history_w_answer_details
 
 dataset:
   train:
-    data_path: data/train_data/train_GSAT_social-83-107_1221.json
+    data_path: data/train_data/GSAT_social/train_GSAT_social-83-107_1221.json
     max_length: 512
     with_answer_details: False
   valid:
-    data_path: data/train_data/valid_GSAT_social-108-112_213.json
+    data_path: data/train_data/GSAT_social/valid_GSAT_social-108-112_213.json
     max_length: 2048
     with_answer_details: False
 
