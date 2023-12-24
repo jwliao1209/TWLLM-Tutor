@@ -123,6 +123,7 @@ class BaseTrainer:
         self.progress_bar.close()
 
         save_name = f"epoch={self.cur_ep}_acc={self.tracker.result().get('valid/acc', 0):.4f}"
+        os.makedirs(self.prediction_dir, exist_ok=True)
         write_json(pred_list, os.path.join(self.prediction_dir, f"{save_name}.json"))
         self.model.save_pretrained(os.path.join(self.checkpoint_dir, save_name))
 
