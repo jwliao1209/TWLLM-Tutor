@@ -2,7 +2,6 @@ import os
 import math
 from argparse import ArgumentParser, Namespace
 from functools import partial
-from pathlib import Path
 
 import json
 import torch
@@ -68,7 +67,8 @@ def parse_arguments() -> Namespace:
     return parser.parse_args()
 
 
-def _preprocess_mc_func_from_new_format(data: dict, tokenizer: AutoTokenizer, train=True) -> dict:
+def _preprocess_mc_func_from_new_format(data: dict, tokenizer: AutoTokenizer, train: bool=True) -> dict:
+    """Preprocessing function for new format."""
     answer_mapping = {
         'A': 0,
         'B': 1,
@@ -79,7 +79,8 @@ def _preprocess_mc_func_from_new_format(data: dict, tokenizer: AutoTokenizer, tr
     return preprocess_mc_func(data, tokenizer, train)
 
 
-def preprocess_files(data_files: dict[str, str], fields_to_keep: list[str], tmp_dir: str):
+def preprocess_files(data_files: dict[str, str], fields_to_keep: list[str], tmp_dir: str) -> dict[str, str]:
+    """Preprocessing json file to required format and saved to tmp_dir."""
     os.makedirs(tmp_dir, exist_ok=True)
     output = {}
     for key, filename in data_files.items():
