@@ -112,7 +112,6 @@ if __name__ == "__main__":
 
     )
     peft_config = LoraConfig(
-        target_modules=["q_proj", "v_proj"],
         lora_alpha=16,
         lora_dropout=0.1,
         r=args.lora_rank,

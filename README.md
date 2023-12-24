@@ -66,8 +66,24 @@ ipython --pdb -- train.py \
 
 ## OS and Hardware
 
-I implemented the code on an environment running Ubuntu 22.04.3, utilizing a 12th Gen Intel(R) Core(TM) i7-12700 CPU, along with a single NVIDIA GeForce RTX 4090 GPU equipped with 24 GB VRAM.
+We implemented the code on an environment running Ubuntu 22.04.3, utilizing a 12th Gen Intel(R) Core(TM) i7-12700 CPU, along with a single NVIDIA GeForce RTX 4090 GPU equipped with 24 GB VRAM.
+
+
+## Acknowledgement
+We thank the Taiwan-LLaMa repository: https://github.com/MiuLab/Taiwan-LLaMa
+
 
 ## Reference
 
 -   https://www.ceec.edu.tw/files/file_pool/1/0j076464103640279375/04-105%e5%ad%b8%e6%b8%ac%e7%a4%be%e6%9c%83%e7%ad%94%e6%a1%88.pdf
+
+
+## Citation
+```bibtex
+@misc{
+    title  = {TWLLM Tutor: Revolutionizing Taiwanese Secondary Education with Large Language Model},
+    author = {Jia-Wei Liao, Ji-Jia Wu, Kun-Hsiang Lin, Kang-Yang Huang},
+    url    = {https://github.com/jwliao1209/TWLLM-Tutor},
+    year   = {2023}
+}
+```

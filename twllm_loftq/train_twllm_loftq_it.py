@@ -10,7 +10,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, get_scheduler
 import wandb
 from lib.configs import get_bnb_config
 from lib.dataset import AcademicDataset
-from lib.optimization.optimizer import get_optimizer
+from lib.optim.optimizer import get_optimizer
 from lib.trainer import InstructionTuningTrainer
 from lib.utils.data_utils import collate_func, read_json
 from lib.utils.train_utils import set_random_seeds
@@ -63,6 +63,9 @@ def parse_arguments() -> Namespace:
                         help="nbit of quantization")
     parser.add_argument("--with_answer_details", action="store_true",
                         help="Option of answer details")
+    parser.add_argument("--results_dir", type=str,
+                        default="results",
+                        help="Directory of results")
 
     return parser.parse_args()
 
@@ -127,7 +130,6 @@ if __name__ == "__main__":
         is_trainable=True,
     )
     model.print_trainable_parameters()
-    print(model)
 
     # Prepared optimizer and learning rate scheduler
     optimizer = get_optimizer(
@@ -179,7 +181,7 @@ if __name__ == "__main__":
         lr_scheduler=lr_scheduler,
         logger=wandb,
         disable_valid_on_start=True,
-        checkpoint_dir=f"checkpoint/LoftQ-LLM-IT-{Path(args.train_data_path).stem}-{Path(args.valid_data_path).stem}/ckpt",
-        prediction_dir=f"prediction/LoftQ-LLM-IT-{Path(args.train_data_path).stem}-{Path(args.valid_data_path).stem}/pred",
+        checkpoint_dir=f"{args.results_dir}/LoftQ-LLM-IT-{Path(args.train_data_path).stem}-{Path(args.valid_data_path).stem}/ckpt",
+        prediction_dir=f"{args.results_dir}/LoftQ-LLM-IT-{Path(args.train_data_path).stem}-{Path(args.valid_data_path).stem}/pred",
     )
     trainer.fit(epoch=args.epoch)

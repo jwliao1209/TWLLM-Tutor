@@ -1,4 +1,4 @@
-from torch.optim import AdamW, Optimizer
+from torch.optim import SGD, Adam, AdamW, Optimizer
 
 from .lion import Lion
 
@@ -22,9 +22,14 @@ def get_optimizer(
         },
     ]
     match optimizer_name:
+        case "sgd":
+            optimizer = SGD
+        case "adam":
+            optimizer = Adam
         case "adamw":
-            return AdamW(optimizer_grouped_parames, lr=lr)
+            optimizer = AdamW
         case "lion":
-            return Lion(optimizer_grouped_parames, lr=lr)
+            optimizer = Lion
         case _:
-            raise
+            raise TypeError("not a optimizer we support")
+    return optimizer(optimizer_grouped_parames, lr=lr)

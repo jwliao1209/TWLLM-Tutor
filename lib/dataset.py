@@ -42,6 +42,7 @@ class AcademicDataset(Dataset):
         is_train=True,
         with_incontext=False,
         with_answer_details=True,
+        *args, **kwargs
     ) -> None:
 
         self.tokenizer = tokenizer
@@ -123,6 +124,7 @@ class LLMMCDataset(Dataset):
         data_list,
         tokenizer,
         max_length=1024,
+        *args, **kwargs
     ) -> None:
 
         self.tokenizer = tokenizer

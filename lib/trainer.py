@@ -57,6 +57,7 @@ class BaseTrainer:
         self.checkpoint_dir = checkpoint_dir if checkpoint_dir is not None else CHECKPOINT_DIR
         self.prediction_dir = prediction_dir if prediction_dir is not None else PREDICTION_DIR
         self.max_new_token = max_new_token if max_new_token is not None else MAX_NEW_TOKENS
+        print(self)
 
     def train_step(self, batch_data, index):
         NotImplementedError
@@ -73,7 +74,6 @@ class BaseTrainer:
     def train_one_epoch(self):
         self.model.train()
         self.progress_bar = tqdm(self.train_loader, desc=f"Training {self.cur_ep}")
-        self.tracker.reset(keys=["train/loss"])
 
         for step, batch_data in enumerate(self.progress_bar, start=1):
             batch_data = dict_to_device(batch_data, self.device)
@@ -83,8 +83,8 @@ class BaseTrainer:
             ):
                 loss = self.train_step(batch_data, step)
 
-            self.progress_bar.set_postfix(self.tracker.result() | {"lr": self.lr_scheduler.get_last_lr()[0]})
-            self.log(self.tracker.result() | {"lr": self.lr_scheduler.get_last_lr()[0]})
+            self.progress_bar.set_postfix({"train_loss": loss.item(), "lr": self.lr_scheduler.get_last_lr()[0]})
+            self.log({"train/loss": loss.item(), "lr": self.lr_scheduler.get_last_lr()[0]})
 
             # ref: https://pytorch.org/tutorials/recipes/recipes/amp_recipe.html#adding-gradscaler
             self.grad_scaler.scale(loss / self.accum_grad_step).backward()
@@ -105,7 +105,7 @@ class BaseTrainer:
     def valid_one_epoch(self, valid_loader=None):
         self.model.eval()
         valid_loader = self.valid_loader if valid_loader is None else valid_loader
-        self.progress_bar = tqdm(self.valid_loader, desc=f"Validation {self.cur_ep}")
+        self.progress_bar = tqdm(valid_loader, desc=f"Validation {self.cur_ep}")
         self.tracker.reset(keys=["valid/acc"])
 
         pred_list = []
@@ -125,6 +125,7 @@ class BaseTrainer:
         save_name = f"epoch={self.cur_ep}_acc={self.tracker.result().get('valid/acc', 0):.4f}"
         os.makedirs(self.prediction_dir, exist_ok=True)
         write_json(pred_list, os.path.join(self.prediction_dir, f"{save_name}.json"))
+        os.makedirs(self.checkpoint_dir, exist_ok=True)
         self.model.save_pretrained(os.path.join(self.checkpoint_dir, save_name))
 
     def fit(self, epoch):
@@ -136,25 +137,28 @@ class BaseTrainer:
             self.valid_one_epoch()
 
     def __repr__(self):
-        return (
+        tab = " " * 2
+        x = (
             f"{self.__class__.__name__}(\n"
-            f"\ttokenizer={self.tokenizer},\n"
-            f"\tmodel={self.model},\n"
-            f"\tdevice={self.device},\n"
-            f"\ttrain_loader={self.train_loader},\n"
-            f"\tvalid_loader={self.valid_loader},\n"
-            f"\ttrain_num={self.train_num},\n"
-            f"\tvalid_num={self.valid_num},\n"
-            f"\toptimizer={self.optimizer},\n"
-            f"\taccum_grad_step={self.accum_grad_step},\n"
-            f"\tclip_grad_norm={self.clip_grad_norm},\n"
-            f"\tlr_scheduler={self.lr_scheduler},\n"
-            f"\tdisable_valid_on_start={self.disable_valid_on_start},\n"
-            f"\tcheckpoint_dir={self.checkpoint_dir},\n"
-            f"\tprediction_dir={self.prediction_dir},\n"
-            f"\tmax_new_token={self.max_new_token},\n"
-            f")"
+            f" tokenizer={self.tokenizer},\n"
+            f" model={self.model},\n"
+            f" device={self.device},\n"
+            f" train_loader={self.train_loader},\n"
+            f" valid_loader={self.valid_loader},\n"
+            f" train_num={self.train_num},\n"
+            f" valid_num={self.valid_num},\n"
+            f" optimizer={self.optimizer},\n"
+            f" train_batch_size={self.train_loader.batch_size if self.train_loader is not None else None},\n"
+            f" accum_grad_step={self.accum_grad_step},\n"
+            f" clip_grad_norm={self.clip_grad_norm},\n"
+            f" lr_scheduler={self.lr_scheduler},\n"
+            f" disable_valid_on_start={self.disable_valid_on_start},\n"
+            f" checkpoint_dir={self.checkpoint_dir},\n"
+            f" prediction_dir={self.prediction_dir},\n"
+            f" max_new_token={self.max_new_token}"
         )
+        x = x.replace("\n", f"\n{tab}").replace(f'\n{tab}P', f'\n{tab}{tab}P') + "\n)"
+        return x
 
 
 class InstructionTuningTrainer(BaseTrainer):
@@ -167,7 +171,6 @@ class InstructionTuningTrainer(BaseTrainer):
             labels=batch_data["labels"],
         )
         loss = outputs.loss
-        self.tracker.update("train/loss", loss / b, b)
         return loss
 
     def valid_step(self, batch_data, index):
@@ -250,8 +253,6 @@ class MCTrainer(BaseTrainer):
                 labels=batch_data["labels"],
             )
         loss = outputs.loss
-        preds = outputs.logits.argmax(dim=-1)
-        self.tracker.update("train/loss", loss / preds.shape[0], preds.shape[0])
         return loss
 
     def valid_step(self, batch_data, index):
