@@ -108,7 +108,7 @@ if __name__ == "__main__":
             )
             model = PeftModel.from_pretrained(
                 model,
-                args.base_model_path,
+                config.model.base_model_path,
                 subfolder="loftq_init",
                 is_trainable=True,
             )
