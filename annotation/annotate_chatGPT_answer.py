@@ -25,7 +25,7 @@ if __name__ == "__main__":
     
     correct_num = 0
     prediction_list = []
-    for _, data in enumerate(test_data, 1):
+    for i, data in enumerate(test_data, 1):
         print("===============================================================================================")
         print(f"Prompt:\n{prompt.get(data)}")
         print("===============================================================================================")
@@ -41,6 +41,7 @@ if __name__ == "__main__":
         prediction = OrderedDict(
             id=data["id"],
             year=data["year"],
+            subject=data["subject"],
             prompt=prompt.get(data),
             generation=generation,
             answer=data['answer'],
