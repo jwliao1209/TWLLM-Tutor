@@ -43,7 +43,7 @@ def parse_arguments() -> Namespace:
                         default=10,
                         help="number of epochs")
     parser.add_argument("--lr", type=float,
-                        default=5e-5,
+                        default=2e-5,
                         help="learning rate")
     parser.add_argument("--weight_decay", type=float,
                         default=1e-5,
