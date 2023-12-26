@@ -1,0 +1,44 @@
+name: twllm_qlora_MC-train_GSAT_social-valid_GSAT_social
+
+dataset:
+  train:
+    data_path: data/train_data/GSAT_social/train_GSAT_social-83-107_1221.json
+    max_length: 512
+    with_answer_details: False  # TODO: refactor this
+  valid:
+    data_path: data/train_data/GSAT_social/valid_GSAT_social-108-112_213.json
+    max_length: 2048
+    with_answer_details: False  # TODO: refactor this
+
+dataloader:
+  train:
+    batch_size: 16
+    num_workers: 2
+  valid:
+    batch_size: 1  # do not change
+    num_workers: 1  # do not change
+
+model:
+  finetune_type: multiple_choice
+  adapter: qlora
+  base_model_path: model_weight/Taiwan-LLM-7B-v2.0-chat
+  lora_rank: 8
+  lora_alpha: 16
+  lora_dropout: 0.1
+  nbit: 4
+
+device:
+  cuda_id: 0
+
+optim:
+  optimizer:
+    name: adamw  # adamw, lion
+    lr: 0.0002
+    weight_decay: 0.00001
+  lr_scheduler:
+    name: constant  # linear, constant, cosine, cosine_warmup
+    warm_up_step: 0
+
+trainer:
+  epoch: 100
+  accum_grad_step: 1
