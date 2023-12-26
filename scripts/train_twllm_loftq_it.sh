@@ -22,7 +22,7 @@ TASK_TYPE=IT
 # 	--with_answer_details \
 # 	--lr 2e-4
 
-CUDA_VISIBLE_DEVICES=2 ipython -- twllm_qlora/train_twllm.py \
+CUDA_VISIBLE_DEVICES=2 ipython -- twllm/train_twllm.py \
                                 --config_path configs/twllm_loftq_IT-train_QB_social-valid_GSAT_social_w_answer_details.yaml
                                 # --config_path configs/twllm_loftq_IT-train_GSAT_social-valid_GSAT_social.yaml
 
