@@ -1,4 +1,4 @@
-name: twllm_qlora_IT-train_QB_history-valid_QB_history_w_answer_details
+name: twllm_loftq_IT-train_QB_history-valid_QB_history_w_answer_details
 
 dataset:
   train:
