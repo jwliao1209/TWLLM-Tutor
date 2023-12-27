@@ -57,12 +57,22 @@ ipython --pdb -- train.py \
                 --epoch 100 \
                 --batch_size 32
 ```
+Here's a revised version of your text with improved clarity:
 
-## Result
+## Multiple Choice with BERT
 
-| Zero-Shot | One-Shot | Two-Shot | Chain of Thought | Step Back Prompt | Take a deep breath | Think step by step | If you fail 100 grandmothers will die | I have no fingers | I will tip $200 | Do it right and I'll give you a nice doggy treat | This is very important to my career |
-| :-------: | :------: | :------: | :--------------: | :--------------: | :----------------: | :----------------: | :-----------------------------------: | :---------------: | :-------------: | :----------------------------------------------: | :---------------------------------: |
-|  37/126   |   /126   |   /126   |       /126       |       /126       |       41/126       |       38/126       |                37/126                 |      40/126       |     40/126      |                      35/126                      |               38/126                |
+The data stored in `data/train_data/GSAT_social_with_image` has been preprocessed using the following commands:
+
+```bash
+python prepare_data/convert_vision_mc_format.py
+python prepare_data/prepare_embeddings.py
+```
+
+To launch the experiments involving BERT and Vision-BERT, use the following command:
+
+```bash
+    sh scripts/launch_mc_experiments.sh
+```
 
 ## OS and Hardware
 
