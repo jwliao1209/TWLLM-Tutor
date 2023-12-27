@@ -40,5 +40,5 @@ optim:
     warm_up_step: 0
 
 trainer:
-  epoch: 10
+  epoch: 20
   accum_grad_step: 1
