@@ -57,6 +57,22 @@ ipython --pdb -- train.py \
                 --epoch 100 \
                 --batch_size 32
 ```
+Here's a revised version of your text with improved clarity:
+
+## Multiple Choice with BERT
+
+The data stored in `data/train_data/GSAT_social_with_image` has been preprocessed using the following commands:
+
+```bash
+python prepare_data/convert_vision_mc_format.py
+python prepare_data/prepare_embeddings.py
+```
+
+To launch the experiments involving BERT and Vision-BERT, use the following command:
+
+```bash
+    sh scripts/launch_mc_experiments.sh
+```
 
 ## OS and Hardware
 
