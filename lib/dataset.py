@@ -118,7 +118,7 @@ class InstructionDataset(Dataset):
         return self.data_list[index]
 
 
-class LLMMCDataset(Dataset):
+class MultipleChoiceDataset(Dataset):
     def __init__(
         self,
         data_list,

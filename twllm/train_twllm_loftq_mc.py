@@ -5,13 +5,14 @@ from pathlib import Path
 import torch
 from peft import PeftModel
 from torch.utils.data import DataLoader
-from transformers import AutoModelForCausalLM, AutoTokenizer, get_scheduler
+from transformers import (AutoModelForSequenceClassification, AutoTokenizer,
+                          get_scheduler)
 
 import wandb
 from lib.configs import get_bnb_config
-from lib.dataset import InstructionDataset
+from lib.dataset import MultipleChoiceDataset
 from lib.optim.optimizer import get_optimizer
-from lib.trainer import InstructionTuningTrainer
+from lib.trainer import MultipleChoiceTrainer
 from lib.utils.data_utils import collate_func, read_json
 from lib.utils.train_utils import set_random_seeds
 
@@ -29,13 +30,13 @@ def parse_arguments() -> Namespace:
                         default="data/train_data/valid.json",
                         help="Path to validation data.")
     parser.add_argument("--batch_size", type=int,
-                        default=4,
+                        default=8,
                         help="batch size")
     parser.add_argument("--accum_grad_step", type=int,
-                        default=4,
+                        default=2,
                         help="accumulation gradient steps")
     parser.add_argument("--epoch", type=int,
-                        default=1,
+                        default=100,
                         help="number of epochs")
     parser.add_argument("--optimizer", type=str,
                         default="adamw",
@@ -56,17 +57,11 @@ def parse_arguments() -> Namespace:
                         default=0,
                         help="device id")
     parser.add_argument("--lora_rank", type=int,
-                        default=16,
+                        default=8,
                         help="rank of lora")
     parser.add_argument("--nbit", type=int,
-                        default=4,
+                        default=2,
                         help="nbit of quantization")
-    parser.add_argument("--with_answer_details", action="store_true",
-                        help="Option of answer details")
-    parser.add_argument("--results_dir", type=str,
-                        default="results",
-                        help="Directory of results")
-
     return parser.parse_args()
 
 
@@ -75,27 +70,15 @@ if __name__ == "__main__":
     set_random_seeds()
 
     args = parse_arguments()
+
+    # Prepare dataset
+    tokenizer = AutoTokenizer.from_pretrained(args.base_model_path, use_fast=False)
+
     train_data = read_json(args.train_data_path)
     valid_data = read_json(args.valid_data_path)
 
-    # Prepare dataset
-    tokenizer = AutoTokenizer.from_pretrained(
-        args.base_model_path,
-        use_fast=False,
-    )
-
-    train_dataset = InstructionDataset(
-        train_data, tokenizer,
-        max_length=512,
-        is_train=True,
-        with_answer_details=args.with_answer_details,
-    )
-    valid_dataset = InstructionDataset(
-        valid_data, tokenizer,
-        max_length=2048,
-        is_train=False,
-        with_answer_details=args.with_answer_details,
-    )
+    train_dataset = MultipleChoiceDataset(train_data, tokenizer, max_length=1024)
+    valid_dataset = MultipleChoiceDataset(valid_data, tokenizer, max_length=1024)
 
     train_loader = DataLoader(
         train_dataset,
@@ -117,8 +100,10 @@ if __name__ == "__main__":
     bnb_config.bnb_4bit_use_double_quant = False
     device = torch.device(f"cuda:{args.device_id}" if torch.cuda.is_available() else "cpu")
 
-    model = AutoModelForCausalLM.from_pretrained(
+    model = AutoModelForSequenceClassification.from_pretrained(
         args.base_model_path,
+        num_labels=4,
+        torch_dtype=torch.bfloat16,
         low_cpu_mem_usage=True,
         quantization_config=bnb_config,
     )
@@ -130,14 +115,10 @@ if __name__ == "__main__":
         is_trainable=True,
     )
     model.print_trainable_parameters()
+    model.config.pad_token_id = tokenizer.pad_token_id
 
     # Prepared optimizer and learning rate scheduler
-    optimizer = get_optimizer(
-        model,
-        optimizer_name=args.optimizer,
-        lr=args.lr,
-        weight_decay=args.weight_decay
-    )
+    optimizer = get_optimizer(model, lr=args.lr, optimizer_name=args.optimizer, weight_decay=args.weight_decay)
     num_update_steps_per_epoch = math.ceil(len(train_loader) / args.accum_grad_step)
     max_train_steps = args.epoch * num_update_steps_per_epoch
     lr_scheduler = get_scheduler(
@@ -150,7 +131,7 @@ if __name__ == "__main__":
     # Prepared logger
     wandb.init(
         project="adl_final_project",
-        group=f"LoftQ-LLM-IT-{Path(args.train_data_path).stem}-{Path(args.valid_data_path).stem}",
+        group=f"LoftQ-LLM-MC-{Path(args.train_data_path).stem}-{Path(args.valid_data_path).stem}",
         config={
             "tokenizer": args.base_model_path,
             "model": args.base_model_path,
@@ -164,13 +145,12 @@ if __name__ == "__main__":
             "warm_up_step": args.warm_up_step,
             "lora_rank": args.lora_rank,
             "nbit": args.nbit,
-            "with_answer_details": args.with_answer_details,
         }
     )
     wandb.watch(model, log="all")
 
     # Start training
-    trainer = InstructionTuningTrainer(
+    trainer = MultipleChoiceTrainer(
         tokenizer=tokenizer,
         model=model,
         device=device,
@@ -180,8 +160,5 @@ if __name__ == "__main__":
         accum_grad_step=args.accum_grad_step,
         lr_scheduler=lr_scheduler,
         logger=wandb,
-        disable_valid_on_start=True,
-        checkpoint_dir=f"{args.results_dir}/LoftQ-LLM-IT-{Path(args.train_data_path).stem}-{Path(args.valid_data_path).stem}/ckpt",
-        prediction_dir=f"{args.results_dir}/LoftQ-LLM-IT-{Path(args.train_data_path).stem}-{Path(args.valid_data_path).stem}/pred",
     )
     trainer.fit(epoch=args.epoch)
