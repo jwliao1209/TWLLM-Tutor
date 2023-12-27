@@ -16,6 +16,7 @@ from lib.lib_mc.trainer import MultipleChoiceTrainer
 from lib.lib_mc.preprocess import flatten_list, unflatten_list, MC_MAX_SEQ_LEN, MC_ENDING_LEN
 from lib.optim.optimizer import get_optimizer
 from lib.utils.train_utils import set_random_seeds
+from lib.lib_mc.preprocess import preprocess_mc_func
 
 from transformers.models.bert.modeling_bert import BertForMultipleChoice
 
@@ -65,6 +66,8 @@ def parse_arguments() -> Namespace:
                         help="Experiment name for wandb")
 
     parser.add_argument("--use_train_qb", action="store_true")
+    parser.add_argument("--vision_bert", action="store_true",
+                        help="Whether to use vision bert")
     return parser.parse_args()
 
 
@@ -86,7 +89,20 @@ def replace_and_extract_indices(input_string):
     return replaced_string, indices
 
 
-def preprocess_mc_func(data: dict, tokenizer: AutoTokenizer, train=True) -> dict:
+def _preprocess_mc_func_from_new_format(data: dict, tokenizer: AutoTokenizer, train: bool=True) -> dict:
+    """Preprocessing function for new format."""
+    answer_mapping = {
+        'A': 0,
+        'B': 1,
+        'C': 2,
+        'D': 3,
+    }
+    data['answer'] = [answer_mapping[ans] for ans in data['answer']]
+    return preprocess_mc_func(data, tokenizer, train)
+
+
+
+def vision_preprocess_mc_func(data: dict, tokenizer: AutoTokenizer, train=True) -> dict:
     """
     Reference: https://github.com/huggingface/transformers/blob/main/examples/pytorch/multiple-choice/run_swag_no_trainer.py
     """
@@ -233,7 +249,11 @@ if __name__ == "__main__":
         data_files, ['question', 'A', 'B', 'C', 'D', 'answer'], "./tmp")
     datasets = load_dataset("json", data_files=data_files)
 
-    preprocess_func = partial(preprocess_mc_func, tokenizer=tokenizer)
+    if args.vision_bert:
+        preprocess_func = partial(vision_preprocess_mc_func, tokenizer=tokenizer)
+    else:
+        preprocess_func = partial(_preprocess_mc_func_from_new_format, tokenizer=tokenizer)
+
     processed_datasets = datasets.map(
         preprocess_func,
         batched=True,
@@ -281,15 +301,16 @@ if __name__ == "__main__":
             config=model_config,
         )
 
-        model: BertForMultipleChoice = model
-        torch.save(model.state_dict(), "tmp.pth")
-        state_dict = torch.load("tmp.pth")
-        model = VisionBertForMultipleChoice(model.config).to(device)
-        try:
-            model.load_state_dict(state_dict)
-        except:
-            print("Some keys are missing")
-            model.load_state_dict(state_dict, strict=False)
+        if args.vision_bert:
+            model: BertForMultipleChoice = model
+            torch.save(model.state_dict(), "tmp.pth")
+            state_dict = torch.load("tmp.pth")
+            model = VisionBertForMultipleChoice(model.config).to(device)
+            try:
+                model.load_state_dict(state_dict)
+            except:
+                print("Some keys are missing")
+                model.load_state_dict(state_dict, strict=False)
 
     # Prepared optimizer and learning rate scheduler
     optimizer = get_optimizer(
@@ -308,7 +329,7 @@ if __name__ == "__main__":
     wandb.init(
         project="adl-hw1",
         group="mc",
-        name="experiment_mc_mixed",
+        name="experiment",
         config={
             "tokenizer": args.tokenizer_name,
             "model": args.model_name_or_path,
