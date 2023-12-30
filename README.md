@@ -1,4 +1,4 @@
-# Taiwan LLM Tutor: Revolutionizing Taiwanese Secondary Education with Large Language Model
+# Taiwan LLM Tutor: Language Models for Taiwanese Education
 
 ## Set the Environment
 
