@@ -1,4 +1,4 @@
-# TWLLM Tutor: Revolutionizing Taiwanese Secondary Education with Large Language Model
+# Taiwan LLM Tutor: Revolutionizing Taiwanese Secondary Education with Large Language Model
 
 ## Set the Environment
 
@@ -10,14 +10,6 @@ source activate adl_final
 pip install -r requirements.txt
 ```
 
-### Pyenv
-
-```bash
-pyenv install 3.10.13
-pyenv virtualenv 3.10.13 adl_final
-pip install -r requirements.txt
-```
-
 ### Virtual Environment
 
 ```bash
@@ -26,44 +18,27 @@ source ~/adl_final/bin/activate
 pip install -r requirements.txt
 ```
 
-
-## Prepare Training Dataset
-
-The data is stored in the train_data variable with the following naming convention: `{train, valid}_{GSAT, QB}_{subject with years}_{number of questions}`.
+### Pyenv
 
 ```bash
-ipython prepare_data/convert_to_train_format.py
+pyenv install 3.10.13
+pyenv virtualenv 3.10.13 adl_final
+pip install -r requirements.txt
 ```
 
-## Training
+## Dataset
 
-```bash
-CUDA_VISIBLE_DEVICES=0 ipython -- train.py \
-                                --epoch 100 \
-                                --batch_size 32
+The GSAT social dataset is downloaded from [GSAT Website](https://www.ceec.edu.tw/files/file_pool/1/0j076464103640279375/04-105%e5%ad%b8%e6%b8%ac%e7%a4%be%e6%9c%83%e7%ad%94%e6%a1%88.pdf).
+
+### File Structure
+
+```
+data
+|- GSAT_social  # Public is for data we consider publishable (without copyright issues, etc).
+|- QB_social    # Private is for data we don't want to publish (For future extensions).
 ```
 
-
-## Inference
-
-```bash
-ipython -- infer.py
-```
-
-## Debug
-
-You can use --pdb for debugging.
-
-```bash
-ipython --pdb -- train.py \
-                --epoch 100 \
-                --batch_size 32
-```
-Here's a revised version of your text with improved clarity:
-
-
-## Multiple Choice with BERT
-
+### Dataset for Chinese BERT
 The data stored in `data/train_data/GSAT_social_with_image` has been preprocessed using the following commands:
 
 ```bash
@@ -71,20 +46,50 @@ python prepare_data/convert_vision_mc_format.py
 python prepare_data/prepare_embeddings.py
 ```
 
+### Dataset for Taiwan LLM
+#### Data Format
+```
+{
+        "subject": "social_study",
+        "year": "83",
+        "id": 1,
+        "type": "single",
+        "question": "孫中山先生認為造成中國人像一盤散沙，民族不夠團結的主因為何",
+        "A": "任外族帝制專斷的統治下，人民喪失了關心公共事務的能力",
+        "B": "異族的征服者過於強大，中國人團結也沒用",
+        "C": "中國入的家族觀念過於發達",
+        "D": "過早提倡天下一家的世界主義",
+        "answer": "A",
+        "answer_details": ""
+},
+```
+
+## Training
+
+### Chinese BERT Multiple Choice
+
 To launch the experiments involving BERT and Vision-BERT, use the following command:
 
 ```bash
     sh scripts/launch_mc_experiments.sh
 ```
 
-## LoftQ
-## Apply LoftQ and save
+### Taiwan LLM Multiple Choice with QLoRA
+To fine-tune the Taiwan LLM with multiple choice and QLoRA, you can run the command:
+```bash
+bash scripts/train_twllm_qlora_mc.sh
+```
 
-I modified the [quantize_save_load.py](quantize_save_load.py) to apply LoftQ for TWLLM model.
+### Taiwan LLM Instruction Tuning with QLoRA
+To fine-tune the Taiwan LLM with instruction tuning and QLoRA, you can run the command:
+```bash
+bash scripts/train_twllm_qlora_it.sh
+```
+
+### Taiwan LLM Instruction Tuning with LoftQ
+We modified the [quantize_save_load.py](quantize_save_load.py) to apply LoftQ for TWLLM model.
 
 Below is an example of obtaining 4bit LLAMA-2-7b with 16-rank LoRA adapters by 5 alternating steps.
-
-### Causal language modeling
 
 ```bash
 SAVE_DIR="model_weight/"
@@ -97,29 +102,7 @@ python quantize_save_load.py \
     --save_dir $SAVE_DIR
 ```
 
-The above commands end up with creating the model directory under `$SAVE_DIR`.
-Specifically, the model directory is named as
-
-`MODEL_DIR = SAVE_DIR + f"{args.model_name_or_path.split('/')[-1]}-{args.bits}bits-{args.rank}rank"`
-
-In this example, `MODEL_DIR="model_zoo/loftq/Llama-2-7b-hf-4bit-16rank"`, where the backbone is stored in `$MODEL_DIR`
-and the LoRA adapters are at the sub-folder `$MODEL_DIR/loftq_init`.
-
-### Multiple choice
-
-```bash
-SAVE_DIR="model_weight/"
-python quantize_save_load.py \
-    --model_name_or_path model_weight/Taiwan-LLM-7B-v2.0-chat \
-    --token model_weight/Taiwan-LLM-7B-v2.0-chat \
-    --bits 4 \
-    --iter 5 \
-    --rank 16 \
-    --save_dir $SAVE_DIR \
-	--mc_model
-```
-
-### Load and train
+#### Model Setting
 
 Similar to loading from Huggingface Hub, we only need to change the `MODEL_ID` to the `MODEL_DIR`.
 
@@ -148,30 +131,61 @@ peft_model = PeftModel.from_pretrained(
 )
 ```
 
-### Train cuasal language modeling
+The above commands end up with creating the model directory under `$SAVE_DIR`.
+Specifically, the model directory is named as
 
+`MODEL_DIR = SAVE_DIR + f"{args.model_name_or_path.split('/')[-1]}-{args.bits}bits-{args.rank}rank"`
+
+In this example, `MODEL_DIR="model_zoo/loftq/Llama-2-7b-hf-4bit-16rank"`, where the backbone is stored in `$MODEL_DIR`
+and the LoRA adapters are at the sub-folder `$MODEL_DIR/loftq_init`.
+
+
+To fine-tune the Taiwan LLM withinstruction tuning and LoftQ, you can run the command:
 ```bash
-bash train_llm_loftq.sh
+bash scripts/train_twllm_loftq_it.sh
 ```
 
-### Train multiple choice
+### Taiwan LLM Multiple Choice with LoftQ
 
 ```bash
-bash train_llm_mc_loftq.sh
+SAVE_DIR="model_weight/"
+python quantize_save_load.py \
+    --model_name_or_path model_weight/Taiwan-LLM-7B-v2.0-chat \
+    --token model_weight/Taiwan-LLM-7B-v2.0-chat \
+    --bits 4 \
+    --iter 5 \
+    --rank 16 \
+    --save_dir $SAVE_DIR \
+	--mc_model
+```
+
+To fine-tune the Taiwan LLM with multiple choice and LoftQ, you can run the command:
+```bash
+bash scripts/train_twllm_loftq_mc.sh
+```
+
+## Debug
+
+You can use --pdb for debugging.
+
+```bash
+ipython --pdb -- {Python File}.py
+```
+
+
+## Inference
+
+```bash
+ipython -- twllm/infer_twllm_qlora_it.py
 ```
 
 ## OS and Hardware
 
-We implemented the code on an environment running Ubuntu 22.04.3, utilizing a 12th Gen Intel(R) Core(TM) i7-12700 CPU, along with a single NVIDIA GeForce RTX 4090 GPU equipped with 24 GB VRAM.
+The experiments were performed on a personal computer equipped with a single NVIDIA GeForce RTX 4090 GPU with 24 GB of VRAM, and a server configuration featuring a single RTX A6000 GPU with 49 GB of VRAM.
 
 
 ## Acknowledgement
-We thank the Taiwan-LLaMa repository: https://github.com/MiuLab/Taiwan-LLaMa
-
-
-## Reference
-
--   https://www.ceec.edu.tw/files/file_pool/1/0j076464103640279375/04-105%e5%ad%b8%e6%b8%ac%e7%a4%be%e6%9c%83%e7%ad%94%e6%a1%88.pdf
+We thank the Taiwan LLM repository: https://github.com/MiuLab/Taiwan-LLaMa
 
 
 ## Citation
