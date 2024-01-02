@@ -71,7 +71,7 @@ python prepare_data/prepare_embeddings.py
 To launch the experiments involving BERT and Vision-BERT, use the following command:
 
 ```bash
-    sh scripts/launch_mc_experiments.sh
+bash scripts/launch_mc_experiments.sh
 ```
 
 ### Taiwan LLM Multiple Choice with QLoRA
