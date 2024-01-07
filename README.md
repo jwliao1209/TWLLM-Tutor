@@ -195,7 +195,7 @@ The experiments were performed on a personal computer equipped with a single NVI
 
 
 ## Acknowledgement
-We thank the Taiwan LLM repository: https://github.com/MiuLab/Taiwan-LLaMa
+We thank the Taiwan-LLM repository: https://github.com/MiuLab/Taiwan-LLM
 
 
 ## Citation
