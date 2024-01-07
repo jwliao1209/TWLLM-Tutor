@@ -1,7 +1,6 @@
 # Taiwan LLM Tutor: Language Models for Taiwanese Education
 
-<img width="500" alt="instruction_tuning" src="https://github.com/jwliao1209/Taiwan-LLM-Tutor/assets/55970911/cc831858-37bb-433e-a70a-8aa98b17b05d">
-
+<img width="800" alt="twllm" src="https://github.com/jwliao1209/Taiwan-LLM-Tutor/assets/55970911/a9d5895b-dd95-4609-95ec-69a01bca238b">
 
 ## Set the Environment
 
