@@ -1,12 +1,12 @@
-# Taiwan LLM Tutor: Language Models for Taiwanese Education
+# TAIWAN-LLM Tutor: Language Models for Taiwanese Education
 
 <img width="800" alt="twllm" src="https://github.com/jwliao1209/Taiwan-LLM-Tutor/assets/55970911/a9d5895b-dd95-4609-95ec-69a01bca238b">
 
-## Installation
+## Setup
 
 ### Conda
 
-```bash
+```
 conda create --name adl_final python=3.10.0
 source activate adl_final
 pip install -r requirements.txt
@@ -14,7 +14,7 @@ pip install -r requirements.txt
 
 ### Virtual Environment
 
-```bash
+```
 virtualenv --python=python3.10 adl_final
 source ~/adl_final/bin/activate
 pip install -r requirements.txt
@@ -22,7 +22,7 @@ pip install -r requirements.txt
 
 ### Pyenv
 
-```bash
+```
 pyenv install 3.10.13
 pyenv virtualenv 3.10.13 adl_final
 pip install -r requirements.txt
@@ -200,8 +200,8 @@ We thank the Taiwan-LLM repository: https://github.com/MiuLab/Taiwan-LLM
 
 ## Citation
 ```bibtex
-@misc{
-    title  = {TWLLM Tutor: Revolutionizing Taiwanese Secondary Education with Large Language Model},
+@misc{liao2023twllm
+    title  = {TAIWAN-LLM Tutor: Revolutionizing Taiwanese Secondary Education with Large Language Model},
     author = {Jia-Wei Liao, Ji-Jia Wu, Kun-Hsiang Lin, Kang-Yang Huang},
     url    = {https://github.com/jwliao1209/TWLLM-Tutor},
     year   = {2023}
