@@ -32,6 +32,23 @@ pip install -r requirements.txt
 
 The GSAT social dataset is downloaded from [GSAT Website](https://www.ceec.edu.tw/files/file_pool/1/0j076464103640279375/04-105%e5%ad%b8%e6%b8%ac%e7%a4%be%e6%9c%83%e7%ad%94%e6%a1%88.pdf).
 
+### GSAT Dataset
+| Dataset | Year | Number of Question | 
+|:-|:-|:-|
+| train_GSAT_social  | 83-107  | 1221 |
+| valid_GSAT_history | 108-112 | 97   |
+| valid_GSAT_civics  | 108-112 | 79   |
+| valid_GSAT_social  | 108-112 | 213  |
+
+### Question Bank Dataset
+| Dataset | Number of Question |
+|:-|:-|
+| train_QB_history | 9000  |
+| train_QB_civics  | 2035  |
+| train_QB_social  | 11347 |
+| valid_QB_history | 205   |
+
+
 ### File Structure
 
 ```
