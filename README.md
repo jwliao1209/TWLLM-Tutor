@@ -164,7 +164,7 @@ We thank the Taiwan-LLM repository: https://github.com/MiuLab/Taiwan-LLM
 
 ```bibtex
 @misc{liao2023twllm
-    title  = {Taiwan-LLM Tutor: Revolutionizing Taiwanese Secondary Education with Large Language Model},
+    title  = {Taiwan-LLM Tutor: Large Language Models for Taiwanese Secondary Education},
     author = {Jia-Wei Liao, Ji-Jia Wu, Kun-Hsiang Lin, Kang-Yang Huang},
     url    = {https://github.com/jwliao1209/TWLLM-Tutor},
     year   = {2023}
