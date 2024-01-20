@@ -57,10 +57,16 @@ The GSAT social dataset is downloaded from [GSAT Website](https://www.ceec.edu.t
 ### File Structure
 
 ```
-data
-|- GSAT_social  # Public is for data we consider publishable (without copyright issues, etc).
-|- QB_social    # Private is for data we don't want to publish (For future extensions).
+./data
+   |─ raw_data
+   |   |─ GSAT_social  # Public is for data we consider publishable (without copyright issues, etc).
+   |   └─ QB_social    # Private is for data we don't want to publish (For future extensions).
+   └─ train_data
+       |- GSAT_social
+       |- GSAT_social_with_image
+       └─ QB_social
 ```
+
 <!---
 The data stored in `data/train_data/GSAT_social_with_image` has been preprocessed using the following commands:
 
