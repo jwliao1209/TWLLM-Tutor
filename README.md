@@ -61,17 +61,17 @@ data
 |- GSAT_social  # Public is for data we consider publishable (without copyright issues, etc).
 |- QB_social    # Private is for data we don't want to publish (For future extensions).
 ```
-
-### Dataset for Chinese BERT
+<!---
 The data stored in `data/train_data/GSAT_social_with_image` has been preprocessed using the following commands:
 
 ```bash
 python prepare_data/convert_vision_mc_format.py
 python prepare_data/prepare_embeddings.py
 ```
+--->
 
-### Dataset for Taiwan LLM
-- Data Format
+### Data Format
+
 ```
 {
         "subject": "social_study",
