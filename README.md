@@ -93,30 +93,31 @@ python prepare_data/prepare_embeddings.py
 
 ### Fine-Tune Chinese-BERT
 
-To launch the experiments involving BERT and Vision-BERT, use the following command:
+- Chinese-BERT for Multiple Choice
 
+To fine-tune the Chinese-BERT, you can run the command:
 ```bash
-bash scripts/launch_mc_experiments.sh
+bash scripts/run_train_bert.sh
 ```
 
 ### Fine-Tune Taiwan-LLM
 
-- Taiwan-LLM Instruction Tuning with QLoRA
+- Taiwan-LLM for Instruction Tuning with QLoRA
 ```bash
 FINETUNE_METHOD=qlora_instruction_tuning
 ```
 
-- Taiwan-LLM Multiple Choice with QLoRA
+- Taiwan-LLM for Multiple Choice with QLoRA
 ```bash
 FINETUNE_METHOD=qlora_multiple_choice
 ```
 
-- Taiwan-LLM Instruction Tuning with LoftQ
+- Taiwan-LLM for Instruction Tuning with LoftQ
 ```bash
 FINETUNE_METHOD=loftq_instruction_tuning
 ```
 
-- Taiwan-LLM Multiple Choice with LoftQ
+- Taiwan-LLM for Multiple Choice with LoftQ
 ```bash
 FINETUNE_METHOD=loftq_multiple_choice
 ```
