@@ -94,6 +94,7 @@ python prepare_data/prepare_embeddings.py
 ### Fine-Tune Chinese-BERT
 
 - Chinese-BERT for Multiple Choice
+- Vision-BERT for Multiple Choice
 
 To fine-tune the Chinese-BERT, you can run the command:
 ```bash
