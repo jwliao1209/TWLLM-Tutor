@@ -7,24 +7,24 @@
 ### Conda
 
 ```
-conda create --name adl_final python=3.10.0
-source activate adl_final
+conda create --name twllm_tutor python=3.10.0
+source activate twllm_tutor
 pip install -r requirements.txt
 ```
 
 ### Virtual Environment
 
 ```
-virtualenv --python=python3.10 adl_final
-source ~/adl_final/bin/activate
+virtualenv --python=python3.10.0 twllm_tutor
+source ~/twllm_tutor/bin/activate
 pip install -r requirements.txt
 ```
 
 ### Pyenv
 
 ```
-pyenv install 3.10.13
-pyenv virtualenv 3.10.13 adl_final
+pyenv install 3.10.0
+pyenv virtualenv 3.10.0 twllm_tutor
 pip install -r requirements.txt
 ```
 
@@ -43,10 +43,11 @@ The GSAT social dataset is downloaded from [GSAT Website](https://www.ceec.edu.t
 ### Question Bank Dataset
 | Dataset | Number of Question |
 |:-|:-|
-| train_QB_history | 9000  |
-| train_QB_civics  | 2035  |
-| train_QB_social  | 11347 |
-| valid_QB_history | 205   |
+| train_QB_geography | 312  |
+| train_QB_history   | 9000  |
+| train_QB_civics    | 2035  |
+| train_QB_social    | 11347 |
+| valid_QB_history   | 205   |
 
 
 ### File Structure
