@@ -1,3 +1,6 @@
+# download
+gdown==4.7.1
+
 # data preprocessing
 pdfplumber==0.10.3
 python-docx==1.1.0
@@ -14,8 +17,5 @@ wandb==0.15.12
 datasets==2.5.2
 git+https://github.com/huggingface/peft.git  # LoftQ
 
-# others
-gdown==4.7.1
-
-# for conveniently run python scripts
+# for conveniently debug python scripts
 ipython

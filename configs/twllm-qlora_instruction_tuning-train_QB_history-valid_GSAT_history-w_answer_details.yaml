@@ -38,3 +38,4 @@ optim:
 trainer:
   epoch: 10
   accum_grad_step: 1
+  max_new_tokens: 128

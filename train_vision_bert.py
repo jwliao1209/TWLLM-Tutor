@@ -16,14 +16,17 @@ import json
 
 from transformers.models.bert.modeling_bert import BertForMultipleChoice
 
-from src.trainer import BertMultipleChoiceTrainer
-from src.data.preprocess import flatten_list, unflatten_list, MC_MAX_SEQ_LEN, MC_ENDING_LEN
+from src.trainer import BERTMultipleChoiceTrainer
+from src.utils.data_utils import flatten_list, unflatten_list
 from src.optim.optimizer import get_optimizer
 from src.utils.train_utils import set_random_seeds
 from src.data.preprocess import preprocess_mc_func
 from src.model.vision_bert import VisionBertForMultipleChoice
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
+MC_MAX_SEQ_LEN = 520
+MC_ENDING_LEN = 4
+
 
 
 def parse_arguments() -> Namespace:
@@ -98,7 +101,13 @@ def _preprocess_mc_func_from_new_format(data: dict, tokenizer: AutoTokenizer, tr
         'C': 2,
         'D': 3,
     }
-    data['answer'] = [answer_mapping[ans] for ans in data['answer']]
+
+    answer_list = []
+    for ans in data['answer']:
+        print(ans)
+        answer_list.append(answer_mapping[ans])
+    data['answer'] = answer_list
+
     return preprocess_mc_func(data, tokenizer, train)
 
 
@@ -240,9 +249,9 @@ if __name__ == "__main__":
 
     data_files = {
         'train_GSAT': "data/train_data/GSAT_social_with_image/train.json",
-        'train_QB_history': "data/train_data/QB_social/train_QB_history_9205.json",
-        'train_QB_civics': "data/train_data/QB_social/train_QB_civics_2035.json",
-        'train_QB_geo': "data/train_data/QB_social/train_QB_geography_322.json",
+        'train_QB_history': "data/train_data/QB_social/train_QB_history.json",
+        'train_QB_civics': "data/train_data/QB_social/train_QB_civics.json",
+        'train_QB_geo': "data/train_data/QB_social/train_QB_geography.json",
         'valid': "data/train_data/GSAT_social_with_image/valid.json",
     }
 
@@ -326,9 +335,11 @@ if __name__ == "__main__":
         num_training_steps=max_train_steps,
     )
 
+    from src.constants import PROJECT_NAME
+
     # Prepared logger
     wandb.init(
-        project="adl-hw1",
+        project=PROJECT_NAME,
         group="mc",
         name="experiment",
         config={
@@ -346,7 +357,7 @@ if __name__ == "__main__":
     )
     wandb.watch(model, log="all")
 
-    trainer = BertMultipleChoiceTrainer(
+    trainer = BERTMultipleChoiceTrainer(
         model=model,
         device=device,
         train_loader=train_loader,

@@ -10,7 +10,7 @@ from peft import PeftModel
 
 from src.constants import INSTRUCTION_TUNING, MULTIPLE_CHOICE, FEW_SHOT, QLORA, LOFTQ, ZERO_SHOT, CONFIG_FILE
 from src.configs import get_bnb_config
-from src.data.dataset import InstructionDataset, MultipleChoiceDataset
+from src.data.dataset import InstructionDataset, TWLLMMultipleChoiceDataset
 from src.metric.accuracy import correcter
 from src.utils.data_utils import read_json, write_json, collate_func, load_config
 from src.utils.train_utils import set_random_seeds, dict_to_device
@@ -31,7 +31,7 @@ def parse_arguments() -> Namespace:
                         default="", choices=["breath", "career", "die", "no_fingers", "step_by_step", "tips"],
                         help="Prompt prefix.")
     parser.add_argument("--test_data_path", type=str,
-                        default="data/train_data/GSAT_social/valid_GSAT_history-108-112_97.json",
+                        default="data/train_data/GSAT_social/valid_GSAT_history.json",
                         help="Path to test data.")
     parser.add_argument("--output_path", type=str,
                         default="prediction/prediction_test.json",
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     test_data = read_json(args.test_data_path)
 
     if config.model.finetune_type == MULTIPLE_CHOICE:
-        Dataset = MultipleChoiceDataset
+        Dataset = TWLLMMultipleChoiceDataset
     else:
         Dataset = InstructionDataset
 

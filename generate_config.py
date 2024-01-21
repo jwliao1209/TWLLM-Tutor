@@ -115,6 +115,7 @@ def get_trainer_config():
     config.trainer = EasyDict()
     config.trainer.epoch = 10
     config.trainer.accum_grad_step = 1
+    config.trainer.max_new_tokens = 128
 
     return config.trainer
 

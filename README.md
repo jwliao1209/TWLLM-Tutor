@@ -10,15 +10,15 @@
 ```
 conda create --name twllm_tutor python=3.10.0
 source activate twllm_tutor
-pip install -r requirements.txt
+pip install -r envs/requirements.txt
 ```
 
 ### Virtual Environment
 
 ```
 virtualenv --python=python3.10.0 twllm_tutor
-source ~/twllm_tutor/bin/activate
-pip install -r requirements.txt
+source twllm_tutor/bin/activate
+pip install -r envs/requirements.txt
 ```
 
 ### Pyenv
@@ -26,7 +26,7 @@ pip install -r requirements.txt
 ```
 pyenv install 3.10.0
 pyenv virtualenv 3.10.0 twllm_tutor
-pip install -r requirements.txt
+pip install -r envs/requirements.txt
 ```
 
 
@@ -42,6 +42,11 @@ The GSAT social dataset is downloaded from [GSAT Website](https://www.ceec.edu.t
 | valid_GSAT_history | 108-112 | 97   |
 | valid_GSAT_civics  | 108-112 | 79   |
 | valid_GSAT_social  | 108-112 | 213  |
+
+To download the GSAT dataset, you can run the command:
+```bash
+bash scripts/download_data.sh
+```
 
 ### Question Bank Dataset
 
@@ -66,6 +71,7 @@ The GSAT social dataset is downloaded from [GSAT Website](https://www.ceec.edu.t
        |- GSAT_social_with_image
        └─ QB_social
 ```
+
 
 <!---
 The data stored in `data/train_data/GSAT_social_with_image` has been preprocessed using the following commands:
@@ -117,6 +123,11 @@ bash scripts/run_train_bert.sh
 
 ### Fine-Tune Taiwan-LLM
 
+To download the Taiwan-LLM-7B pre-train weight, you can run the command:
+```bash
+bash scripts/download_model_weight.sh
+```
+
 #### QLoRA Adapter
 
 - Instruction Tuning
@@ -153,7 +164,7 @@ FINETUNE_METHOD=loftq_multiple_choice bash scripts/run_train_twllm.sh
 ## Testing
 
 ```bash
-python test.py
+python test.py --checkpoint_path <path of checkpoint>
 ```
 
 

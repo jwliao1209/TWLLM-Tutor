@@ -2,6 +2,7 @@ import os
 import json
 import yaml
 from collections import OrderedDict
+from itertools import chain
 
 import torch
 from easydict import EasyDict
@@ -67,6 +68,17 @@ def flatten_dict(d: dict, parent_key: str = None, sep: str = "/") -> dict:
         else:
             items.append((new_key, v))
     return dict(items)
+
+
+def flatten_list(input_list: list) -> list:
+    return list(chain(*input_list))
+
+
+def unflatten_list(input_list: list, sub_list_num: int) -> list:
+    return [
+        input_list[i: i + sub_list_num]
+        for i in range(0, len(input_list), sub_list_num)
+    ]
 
 
 def collate_func(data: list) -> dict:

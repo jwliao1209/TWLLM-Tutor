@@ -1,10 +1,9 @@
-from itertools import chain
-
 from torch.utils.data.dataset import Dataset
 from transformers import AutoTokenizer
 
 from .prompt import PromptTemplate, Answer
 from ..constants import OPTION, OPTION_TO_LABEL
+from ..utils.data_utils import flatten_list, unflatten_list
 
 
 class BasicDataset(Dataset):
@@ -185,14 +184,3 @@ class BERTMultipleChoiceDataset(BasicDataset):
                 }
             )
         return processed_data
-
-
-def flatten_list(input_list: list) -> list:
-    return list(chain(*input_list))
-
-
-def unflatten_list(input_list: list, sub_list_num: int) -> list:
-    return [
-        input_list[i: i + sub_list_num]
-        for i in range(0, len(input_list), sub_list_num)
-    ]
