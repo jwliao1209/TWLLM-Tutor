@@ -109,31 +109,38 @@ bash scripts/run_train_bert.sh
 
 ### Fine-Tune Taiwan-LLM
 
-- Taiwan-LLM for Instruction Tuning with QLoRA
+#### QLoRA Adapter
+
+- Instruction Tuning
+
 ```bash
-FINETUNE_METHOD=qlora_instruction_tuning
+FINETUNE_METHOD=qlora_instruction_tuning bash scripts/run_train_twllm.sh
 ```
 
-- Taiwan-LLM for Multiple Choice with QLoRA
+- Multiple Choice
+
 ```bash
-FINETUNE_METHOD=qlora_multiple_choice
+FINETUNE_METHOD=qlora_multiple_choice bash scripts/run_train_twllm.sh
 ```
 
-- Taiwan-LLM for Instruction Tuning with LoftQ
+#### LoftQ Adapter
+
+- Quantize Model for LoftQ
+
 ```bash
-FINETUNE_METHOD=loftq_instruction_tuning
+bash scripts/run_quantize_twllm_loftq.sh
 ```
 
-- Taiwan-LLM for Multiple Choice with LoftQ
+- Instruction Tuning
+
 ```bash
-FINETUNE_METHOD=loftq_multiple_choice
+FINETUNE_METHOD=loftq_instruction_tuning bash scripts/run_train_twllm.sh
 ```
 
-To fine-tune the Taiwan-LLM, you can run the command:
+- Multiple Choice
 ```bash
-bash scripts/run_train_twllm.sh
+FINETUNE_METHOD=loftq_multiple_choice bash scripts/run_train_twllm.sh
 ```
-
 
 ## Testing
 
@@ -155,9 +162,12 @@ python test.py
 The experiments were performed on a personal computer equipped with a single NVIDIA GeForce RTX 4090 GPU with 24 GB of VRAM, and a server configuration featuring a single RTX A6000 GPU with 49 GB of VRAM.
 
 
-## Acknowledgement
+## Acknowledgements
 
-We thank the Taiwan-LLM repository: https://github.com/MiuLab/Taiwan-LLM
+- [Taiwan-LLM](https://github.com/MiuLab/Taiwan-LLM)
+- [transformers](https://github.com/huggingface/transformers)
+- [LoftQ](https://github.com/yxli2123/LoftQ)
+- [lion-pytorch repository](https://github.com/lucidrains/lion-pytorch)
 
 
 ## Citation
