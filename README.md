@@ -95,6 +95,14 @@ python prepare_data/prepare_embeddings.py
 ```
 
 
+## Config
+
+To generate the config, you can run the command:
+```
+python generate_config.py
+```
+
+
 ## Training
 
 ### Fine-Tune Chinese-BERT
