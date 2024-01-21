@@ -1,12 +1,8 @@
 .vscode
-lib/__pycache__
-lib/utils/__pycache__
-data_analysis/.ipynb_checkpoints
 *.pyc
 
 /model_weight
 /checkpoint
-/prediction*
+/prediction
 /wandb
-/result*
 tmp

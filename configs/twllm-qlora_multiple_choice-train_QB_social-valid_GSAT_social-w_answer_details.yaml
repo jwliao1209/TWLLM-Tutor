@@ -1,0 +1,40 @@
+name: twllm-qlora_multiple_choice-train_QB_social-valid_GSAT_social-w_answer_details
+tokenizer:
+  name: model_weight/Taiwan-LLM-7B-v2.0-chat
+dataset:
+  train:
+    data_path: data/train_data/QB_social/train_QB_social.json
+    max_length: 512
+    with_answer_details: true
+  valid:
+    data_path: data/train_data/GSAT_social/valid_GSAT_social.json
+    max_length: 512
+    with_answer_details: true
+dataloader:
+  train:
+    batch_size: 16
+    num_workers: 2
+  valid:
+    batch_size: 1
+    num_workers: 1
+model:
+  name: twllm
+  finetune_type: multiple_choice
+  adapter: qlora
+  base_model_path: model_weight/Taiwan-LLM-7B-v2.0-chat
+  lora_rank: 8
+  lora_alpha: 16
+  lora_dropout: 0.1
+device:
+  cuda_id: 0
+optim:
+  optimizer:
+    name: adamw
+    lr: 0.0002
+    weight_decay: 1.0e-05
+  lr_scheduler:
+    name: constant
+    warm_up_step: 0
+trainer:
+  epoch: 10
+  accum_grad_step: 1
