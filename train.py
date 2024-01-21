@@ -18,7 +18,7 @@ from src.constants import CHECKPOINT_DIR, OPTION
 from src.data.dataset import InstructionDataset, TWLLMMultipleChoiceDataset, BERTMultipleChoiceDataset 
 from src.optim.optimizer import get_optimizer
 from src.optim.lr_scheduler import get_lr_scheduler
-from src.trainer import InstructionTuningTrainer, MultipleChoiceTrainer, BERTMultipleChoiceTrainer
+from src.trainer import InstructionTuningTrainer, MultipleChoiceTrainer
 from src.utils.data_utils import collate_func, read_json, flatten_dict, load_config
 from src.utils.train_utils import set_random_seeds
 from src.utils.time_utils import get_time
@@ -176,7 +176,7 @@ if __name__ == "__main__":
                 raise ValueError(f"Unsupported adapter type: {config.model.adapter}")
 
         elif config.model.name == BERT:
-            Trainer = BERTMultipleChoiceTrainer
+            Trainer = MultipleChoiceTrainer
             model_config = AutoConfig.from_pretrained(
                 config.model.base_model_path,
             )
@@ -185,6 +185,7 @@ if __name__ == "__main__":
                 trust_remote_code=False,
                 config=model_config,
             )
+            model.to(device)
 
         else:
             raise ValueError(f"Unsupported model name: {config.model.name}")

@@ -16,7 +16,7 @@ import json
 
 from transformers.models.bert.modeling_bert import BertForMultipleChoice
 
-from src.trainer import BERTMultipleChoiceTrainer
+from src.trainer import MultipleChoiceTrainer
 from src.utils.data_utils import flatten_list, unflatten_list
 from src.optim.optimizer import get_optimizer
 from src.utils.train_utils import set_random_seeds
@@ -357,7 +357,7 @@ if __name__ == "__main__":
     )
     wandb.watch(model, log="all")
 
-    trainer = BERTMultipleChoiceTrainer(
+    trainer = MultipleChoiceTrainer(
         model=model,
         device=device,
         train_loader=train_loader,
