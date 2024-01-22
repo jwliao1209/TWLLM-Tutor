@@ -192,7 +192,7 @@ The experiments were performed on a personal computer equipped with a single NVI
 ## Citation
 
 ```bibtex
-@misc{liao2023twllm
+@misc{liao2023twllmtutor,
     title  = {Taiwan-LLM Tutor: Large Language Models for Taiwanese Secondary Education},
     author = {Jia-Wei Liao, Ji-Jia Wu, Kun-Hsiang Lin, Kang-Yang Huang},
     url    = {https://github.com/jwliao1209/TWLLM-Tutor},
