@@ -201,21 +201,18 @@ class InstructionTuningTrainer(BaseTrainer):
             attention_mask=batch_data["attention_mask"],
             max_new_tokens=self.max_new_token,
         )
-
         generations = self.postprocess(
             predition=generated_tokens,
             prompt=batch_data["prompt"][0],
         )
-
         is_correct = correcter(
             generation=generations,
             answer=batch_data['answer'][0],
             description=batch_data['answer_description'][0]
         )
-
         self.tracker.update("valid/acc", int(is_correct), 1)
 
-        output_dict = OrderedDict(
+        return OrderedDict(
             year=batch_data["year"][0],
             id=int(batch_data["id"][0]),
             prompt=batch_data["prompt"][0],
@@ -224,7 +221,6 @@ class InstructionTuningTrainer(BaseTrainer):
             answer_details=batch_data["answer_description"][0],
             is_correct=is_correct,
         )
-        return output_dict
 
     def postprocess(self, predition, prompt):
         generation = self.tokenizer.batch_decode(predition, skip_special_tokens=True)[0]
@@ -296,7 +292,7 @@ class MultipleChoiceTrainer(BaseTrainer):
         correct_num = get_correct_num(preds, batch_data["labels"])
         self.tracker.update("valid/acc", correct_num, preds.shape[0])
 
-        output_dict = OrderedDict(
+        return OrderedDict(
             id=int(batch_data["id"][0]),
             year=batch_data["year"][0],
             question=batch_data["question"][0],
@@ -305,4 +301,3 @@ class MultipleChoiceTrainer(BaseTrainer):
             answer_details=batch_data["answer_description"][0],
             is_correct=int(preds == batch_data["labels"]),
         )
-        return output_dict

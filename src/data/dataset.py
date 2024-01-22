@@ -1,3 +1,4 @@
+import transformers
 from torch.utils.data.dataset import Dataset
 from transformers import AutoTokenizer
 
@@ -50,7 +51,7 @@ class InstructionDataset(BasicDataset):
         answer = Answer(with_answer_details=self.with_answer_details)
 
         processed_data = []
-        for data in data_list:            
+        for data in data_list:
             if self.is_train:
                 tokenized_instructions = self.tokenizer(prompt.get(data), add_special_tokens=False)
                 tokenized_outputs = self.tokenizer(answer.get(data), add_special_tokens=False)
@@ -146,6 +147,8 @@ class BERTMultipleChoiceDataset(BasicDataset):
         self.data_list = self.process(data_list)
 
     def process(self, data_list: dict) -> dict:
+        transformers.logging.set_verbosity_error()
+
         first_sentences = [
             [data["question"]] * len(OPTION)
             for data in data_list
@@ -165,11 +168,11 @@ class BERTMultipleChoiceDataset(BasicDataset):
             k: unflatten_list(v, len(OPTION))
             for k, v in tokenized_data.items()
         }
-        
+
         processed_data = []
         for i, data in enumerate(data_list):
             question = f"{data['question']} \nA.{data['A']} \nB.{data['B']} \nC.{data['C']} \nD.{data['D']}".replace(" ", "")
-            
+
             processed_data.append(
                 {
                     "id": str(data.get("id")),

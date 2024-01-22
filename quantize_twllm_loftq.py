@@ -3,7 +3,7 @@ from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
 import torch
-import torch.nn as nn
+from torch import nn
 from peft import LoftQConfig, LoraConfig, TaskType, get_peft_model
 from transformers import AutoModelForCausalLM, AutoModelForSequenceClassification, AutoTokenizer
 
