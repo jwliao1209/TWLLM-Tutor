@@ -20,13 +20,13 @@ from src.trainer import MultipleChoiceTrainer
 from src.utils.data_utils import flatten_list, unflatten_list
 from src.optim.optimizer import get_optimizer
 from src.utils.train_utils import set_random_seeds
-from src.data.preprocess import preprocess_mc_func
 from src.model.vision_bert import VisionBertForMultipleChoice
+from src.constants import OPTION
+
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 MC_MAX_SEQ_LEN = 520
 MC_ENDING_LEN = 4
-
 
 
 def parse_arguments() -> Namespace:
@@ -91,6 +91,40 @@ def replace_and_extract_indices(input_string):
         indices.append(match.group(1))  # Capture the index as a string
 
     return replaced_string, indices
+
+
+def preprocess_mc_func(
+    data: dict,
+    tokenizer: AutoTokenizer,
+    train=True,
+    max_length: int = 512,
+) -> dict:
+    """
+    Reference: https://github.com/huggingface/transformers/blob/main/examples/pytorch/multiple-choice/run_swag_no_trainer.py
+    """
+    first_sentences = [
+        [context] * len(OPTION)
+        for context in data['question']
+    ]
+    second_sentences = [
+        [data['A'][i], data['B'][i], data['C'][i], data['D'][i]]
+        for i in range(len(data['A']))
+    ]
+
+    tokenized_data = tokenizer(
+        flatten_list(first_sentences),
+        flatten_list(second_sentences),
+        max_length=max_length,
+        padding="max_length",
+        truncation=True,
+    )
+    tokenized_data = {
+        k: unflatten_list(v, len(OPTION)) for k, v in tokenized_data.items()}
+
+    if train:
+        tokenized_data["labels"] = data['answer']
+
+    return tokenized_data
 
 
 def _preprocess_mc_func_from_new_format(data: dict, tokenizer: AutoTokenizer, train: bool=True) -> dict:
@@ -224,13 +258,13 @@ def preprocess_files(data_files: Dict[str, str], fields_to_keep: List[str], tmp_
                 temp['year'] = data[i]['year']
             else:
                 temp['year'] = -1
-            
+
             for k in fields_to_keep:
                 temp[k] = data[i][k]
             temp['answer'] = answer_mapping[data[i]['answer']]
-            
+
             parsed_data.append(temp)
-            
+
         json.dump(parsed_data, open(tmp_filename, "w", encoding='utf-8'),
                   ensure_ascii=False, indent=4)
     return output
@@ -302,6 +336,9 @@ if __name__ == "__main__":
         f"cuda:{args.device_id}" if torch.cuda.is_available() else "cpu")
     model_config = AutoConfig.from_pretrained(args.model_name_or_path)
 
+
+########################################################################
+    # TODO: refactor vision bert model
     if args.train_from_scratch:
         model = AutoModelForMultipleChoice.from_config(model_config).to(device)
     else:
@@ -322,6 +359,8 @@ if __name__ == "__main__":
                 print("Some keys are missing")
                 model.load_state_dict(state_dict, strict=False)
 
+
+########################################################################
     # Prepared optimizer and learning rate scheduler
     optimizer = get_optimizer(
         model, "adamw", lr=args.lr, weight_decay=args.weight_decay)
