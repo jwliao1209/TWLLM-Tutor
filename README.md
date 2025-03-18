@@ -9,7 +9,7 @@
 
 ```
 conda create --name twllm_tutor python=3.10.0
-source activate twllm_tutor
+conda activate twllm_tutor
 pip install -r envs/requirements.txt
 ```
 
